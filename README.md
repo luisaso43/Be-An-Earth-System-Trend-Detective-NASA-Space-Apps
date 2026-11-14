@@ -76,6 +76,22 @@ Our Mann-Kendall, corrected Mann-Kendall and Sen's slope match the `pymannkendal
 
 ## Put it online
 
+### Vercel (static version in `site/`)
+
+The `site/` folder is a copy of the website that runs entirely in the browser (HTML + JavaScript), so Vercel can host it for free. The math in `site/stats.js` is the same as `stats_engine.py` (checked to match within 0.000002%).
+
+1. In Vercel: **Add New → Project → import this GitHub repo**.
+2. Set **Root Directory** to `site` (click *Edit* next to it). Framework Preset: **Other**. Leave build settings empty.
+3. **Deploy.** Every push to `main` redeploys automatically.
+
+After changing `catalog.py` or downloading new data, rebuild the site's data file and push:
+
+```
+py build_site_data.py
+```
+
+### Streamlit Community Cloud (the Python version, `app.py`)
+
 1. Push this folder to a **public GitHub repo** (include `data/` and `.streamlit/`).
 2. Go to https://share.streamlit.io → sign in with GitHub → Create app → pick the repo → main file `app.py` → Deploy.
 

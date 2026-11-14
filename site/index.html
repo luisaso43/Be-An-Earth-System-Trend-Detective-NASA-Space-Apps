@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Earth Data Detective: Florida</title>
+  <meta name="description" content="Is Florida getting hotter, rainier, muggier? Is the sea rising? Plain-English answers from 40+ years of NASA and NOAA data.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔎</text></svg>">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js" defer></script>
+  <script src="stats.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="top">
+    <div class="wrap top-in">
+      <a class="brand" href="#area">🔎 Earth Data Detective <span>Florida</span></a>
+      <nav id="nav" aria-label="Pages">
+        <a href="#area">🏠 My area</a>
+        <a href="#map">🗺️ Florida map</a>
+        <a href="#compare">⚖️ Compare places</a>
+        <a href="#how">📖 How it works</a>
+      </nav>
+      <div class="units" role="group" aria-label="Units">
+        <button type="button" data-units="US">°F · inches</button>
+        <button type="button" data-units="Metric">°C · mm</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <p id="loading" class="muted">Loading the data…</p>
+
+    <!-- ============ MY AREA ============ -->
+    <section id="page-area" class="page" hidden>
+      <h1>Is Florida's climate changing?</h1>
+      <p class="lead">Pick a place. We check <b>40+ years of NASA and NOAA measurements</b> and tell you, in plain words,
+        whether it is getting hotter, rainier, muggier, and whether the sea is rising.</p>
+      <div class="pick">
+        <div>
+          <label for="place">📍 Pick a place in Florida</label>
+          <select id="place"></select>
+          <p id="place-about" class="muted"></p>
+        </div>
+        <div id="place-map" class="mini-map"></div>
+      </div>
+      <h2 id="cards-title"></h2>
+      <div id="cards" class="cards"></div>
+      <hr>
+      <h2 id="evidence">Look at the evidence</h2>
+      <div id="topic-tabs" class="seg" role="tablist"></div>
+      <div id="detail"></div>
+    </section>
+
+    <!-- ============ MAP ============ -->
+    <section id="page-map" class="page" hidden>
+      <h1>Where in Florida is it changing?</h1>
+      <p class="lead">The same check, repeated all over the state. Bigger colored dots show a clear change; gray dots
+        show no clear change. The number is the change every 10 years.</p>
+      <div id="map-topics" class="seg" role="tablist"></div>
+      <p id="map-note" class="muted"></p>
+      <div id="big-map" class="big-map"></div>
+      <div id="map-summary"></div>
+    </section>
+
+    <!-- ============ COMPARE ============ -->
+    <section id="page-compare" class="page" hidden>
+      <h1>Compare two places</h1>
+      <p class="lead">Is one part of Florida changing faster than another? Put two places side by side.</p>
+      <div id="cmp-topics" class="seg" role="tablist"></div>
+      <div class="two">
+        <div><label for="cmp-a">First place</label><select id="cmp-a"></select></div>
+        <div><label for="cmp-b">Second place</label><select id="cmp-b"></select></div>
+      </div>
+      <p id="cmp-note" class="muted"></p>
+      <div id="cmp-cards" class="two"></div>
+      <div id="cmp-chart" class="chart"></div>
+      <p id="cmp-caption" class="muted small"></p>
+      <div id="cmp-summary"></div>
+    </section>
+
+    <!-- ============ HOW IT WORKS ============ -->
+    <section id="page-how" class="page prose" hidden>
+      <h1>How it works</h1>
+
+      <h2>What we do, in 4 steps</h2>
+      <ol class="steps">
+        <li><b>Get the measurements.</b> Monthly values since 1981 for each place.</li>
+        <li><b>Take out the seasons.</b> Florida is always hotter in August than in January. That's not a trend, so we
+          compare each month only with the same month in other years (this July vs. a normal July).</li>
+        <li><b>Look for a steady change.</b> We draw the trend line and measure how fast it goes up or down: the
+          <i>speed of change</i>, shown per 10 years.</li>
+        <li><b>Ask: could this be luck?</b> Weather goes up and down randomly. A math test (the Mann-Kendall test)
+          checks how likely it is to see a trend this steady if nothing were really changing.</li>
+      </ol>
+
+      <h2>What "How sure are we?" means</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Answer</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><span class="dot" style="--c:var(--sig)"></span><b>Very sure</b></td><td>Less than a 5% chance the trend is just luck. Scientists call this <i>statistically significant</i>.</td></tr>
+            <tr><td><span class="dot" style="--c:var(--maybe)"></span><b>Not sure yet</b></td><td>There's a hint of a change, but luck could still explain it. More years of data may settle it.</td></tr>
+            <tr><td><span class="dot" style="--c:var(--none)"></span><b>No real evidence</b></td><td>The ups and downs look random.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Where the data comes from</h2>
+      <ul>
+        <li><b>Temperature, rain and humidity:</b> NASA's MERRA-2, a reconstruction of the weather built from satellites,
+          weather balloons and ground stations, delivered by <a href="https://power.larc.nasa.gov" target="_blank" rel="noopener">NASA POWER</a>.
+          Monthly since 1981.</li>
+        <li><b>Sea level:</b> <a href="https://tidesandcurrents.noaa.gov" target="_blank" rel="noopener">NOAA tide gauges</a> along
+          Florida's coast. NASA uses tide gauge records like these to check its satellite measurements of the ocean. See NASA's
+          <a href="https://sealevel.nasa.gov/" target="_blank" rel="noopener">Sea Level Change portal</a>.</li>
+      </ul>
+
+      <h2>Honest limits</h2>
+      <ul>
+        <li>We look for straight-line trends. Some real changes curve or come in sudden steps.</li>
+        <li>A trend shows <i>that</i> something changed, not <i>why</i>. The "why" notes are possibilities, not proof.</li>
+        <li>MERRA-2 squares are about 50 km (30 miles) wide, so a place's value covers a whole area, not one street.</li>
+        <li>Tide gauges measure the sea compared with the land, so sinking land also shows up as rising sea.</li>
+      </ul>
+
+      <h2>📚 Dictionary</h2>
+      <input id="glossary-search" type="search" placeholder="Search for a word, e.g. trend, dew point, tide gauge" aria-label="Search the dictionary">
+      <div id="glossary"></div>
+    </section>
+  </main>
+
+  <footer class="wrap muted small">
+    NASA Space Apps 2026 · Be an Earth Systems Trend Detective! · Data: NASA POWER (MERRA-2) and NOAA CO-OPS tide gauges.
+  </footer>
+</body>
+</html>

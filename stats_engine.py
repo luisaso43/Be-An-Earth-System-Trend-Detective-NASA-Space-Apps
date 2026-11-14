@@ -257,7 +257,7 @@ def analyze(series: pd.Series, remove_season: bool = True) -> dict:
         raise ValueError("Need at least 2 years of monthly data.")
     anomalies = deseasonalize(series)
     shown = anomalies if remove_season else series
-    v = shown.to_numpy()
+    v = np.round(shown.to_numpy(), 9)       # rounding makes exact ties count as ties (same as site/stats.js)
     # months since the first month (handles records with missing months, e.g. tide gauges)
     t = ((series.index.year - series.index[0].year) * 12 + series.index.month - series.index[0].month).to_numpy(float)
 
