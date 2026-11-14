@@ -106,3 +106,7 @@ py build_site_data.py
 ## Use of AI
 
 Code and text were drafted with Claude (Anthropic) during the event, then tested, reviewed and edited by the team. Describe your own changes honestly in the submission.
+
+## Languages and beginner's guide
+
+The static site (site/) has an English / Español / Kreyòl switcher at the top. All text lives in `site/i18n.js` (interface) and `site/i18n-data.js` (topic names, place notes, causes, dictionary) as [English, Spanish, Haitian Creole]. Spanish and Haitian Creole were drafted with AI help and should be reviewed by native speakers. The **Beginner's guide** page (`site/guide.js`) teaches how to read a trend, with a labeled real chart and a "trend or luck?" simulator.

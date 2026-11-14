@@ -6,19 +6,18 @@
   const UNITS = {
     temperature: { US: ["°F", v => v * 1.8 + 32], Metric: ["°C", v => v] },
     humidity: { US: ["°F", v => v * 1.8 + 32], Metric: ["°C", v => v] },
-    rainfall: { US: ["in/yr", v => v * 365.25 / 25.4], Metric: ["mm/yr", v => v * 365.25] },
-    sea_level: { US: ["in", v => v * 39.37], Metric: ["cm", v => v * 100] },
+    rainfall: { US: [() => t("unit.inyr"), v => v * 365.25 / 25.4], Metric: [() => t("unit.mmyr"), v => v * 365.25] },
+    sea_level: { US: [() => t("unit.in"), v => v * 39.37], Metric: ["cm", v => v * 100] },
   };
-  const VERDICT = {
-    significant: { color: "#1F6FB2", sure: "Very sure", explain: "A change this steady would happen by luck less than 5% of the time." },
-    possible: { color: "#C98A00", sure: "Not sure yet", explain: "There is a hint of a change, but random ups and downs could still explain it." },
-    none: { color: "#8A94A3", sure: "No real evidence", explain: "The ups and downs look random: no steady change." },
-  };
+  const { t, L, cap } = I18N;
+  // sure/explain are getters so they always follow the current language
+  const verdict = (color, k) => ({ color, get sure() { return t(`v.${k}.sure`); }, get explain() { return t(`v.${k}.explain`); } });
+  const VERDICT = { significant: verdict("#1F6FB2", "sig"), possible: verdict("#C98A00", "pos"), none: verdict("#8A94A3", "none") };
   const RED_BLUE = [[0, "#2166ac"], [0.25, "#67a9cf"], [0.5, "#f7f7f7"], [0.75, "#ef8a62"], [1, "#b2182b"]];
   const BROWN_GREEN = [[0, "#8c510a"], [0.25, "#d8b365"], [0.5, "#f5f5f5"], [0.75, "#5ab4ac"], [1, "#01665e"]];
   const PLOT_CONFIG = { displayModeBar: false, responsive: true };
 
-  let D, TOPICS;
+  let D0, D, TOPICS;
   const store = {
     get(k, d) { try { return localStorage.getItem(k) || d; } catch { return d; } },
     set(k, v) { try { localStorage.setItem(k, v); } catch { /* storage blocked: fine */ } },
@@ -40,7 +39,7 @@
   }
   const hasData = (varKey, placeKey) => seriesKey(varKey, placeKey) !== null;
   const placesFor = varKey => Object.keys(D.places).filter(p => hasData(varKey, p));
-  const unitOf = varKey => UNITS[varKey][state.units][0];
+  const unitOf = varKey => { const u = UNITS[varKey][state.units][0]; return typeof u === "function" ? u() : u; };
 
   function points(key, varKey) {
     const e = D.series[key][varKey], [y0, m0] = e.start.split("-").map(Number), f = UNITS[varKey][state.units][1];
@@ -72,18 +71,43 @@
   const signed = (x, unit) => `${x > 0 ? "+" : x < 0 ? "−" : ""}${nice(Math.abs(x))} ${unit}`;
   const value = (x, unit) => `${Math.abs(x) >= 10 ? x.toFixed(1) : nice(x)} ${unit}`;
   const topicLabel = k => `${D.variables[k].emoji} ${D.variables[k].name}`;
+  const theName = V => V.the || V.name.toLowerCase();
+
+  // Swap in the Spanish / Haitian Creole text for data.json's words (i18n-data.js). Series data is shared, not copied.
+  function localizeData(src) {
+    if (I18N.lang === "en" || !window.I18N_DATA) return src;
+    const X = window.I18N_DATA, out = { ...src, variables: {}, places: {}, causes: {} };
+    for (const [k, v] of Object.entries(src.variables)) {
+      const tr = X.variables[k] || {};
+      out.variables[k] = { ...v };
+      for (const f of Object.keys(tr)) out.variables[k][f] = L(tr[f]) || v[f];
+    }
+    for (const [k, p] of Object.entries(src.places)) {
+      const tr = X.places[k];
+      out.places[k] = tr ? { ...p, name: L(tr.name), about: L(tr.about) } : p;
+    }
+    for (const [k, c] of Object.entries(src.causes)) {
+      const tr = X.causes[k];
+      out.causes[k] = tr ? { ...c, up: L(tr.up) || c.up, down: L(tr.down) || c.down } : c;
+    }
+    out.glossary = {};
+    X.glossary.forEach(([topic, terms]) => {
+      out.glossary[L(topic)] = terms.map(([a, b, c]) => [L(a), L(b), L(c)]);
+    });
+    return out;
+  }
 
   function shortAnswer(r, V) {
     const word = r.direction === "up" ? V.up_short : V.down_short;
     if (r.verdict === "significant") return word;
-    if (r.verdict === "possible") return "Maybe " + word.toLowerCase();
-    return "No clear change";
+    if (r.verdict === "possible") return t("maybe", { word: word.toLowerCase() });
+    return t("noClear");
   }
   function headline(r, V, placeName) {
     const phrase = (r.direction === "up" ? V.up : V.down).replace("{place}", placeName);
-    if (r.verdict === "significant") return phrase[0].toUpperCase() + phrase.slice(1) + ".";
-    if (r.verdict === "possible") return `Maybe: there are hints that ${phrase}, but it is not proven yet.`;
-    return `No clear change in ${V.name.toLowerCase()} at ${placeName}.`;
+    if (r.verdict === "significant") return cap(phrase) + ".";
+    if (r.verdict === "possible") return t("headline.maybe", { phrase });
+    return t("headline.none", { name: theName(V), place: placeName });
   }
   function yearly(r) {
     const groups = {};
@@ -138,7 +162,7 @@
     $("place").value = state.place;
     $("place-about").textContent = P.about;
     smallMap($("place-map"), [[P.name, P.lat, P.lon]], 200);
-    $("cards-title").textContent = `The quick answers for ${P.name}`;
+    $("cards-title").textContent = t("area.cardsTitle", { place: P.name });
     $("cards").innerHTML = TOPICS.map(k => cardHTML(k, state.place)).join("");
     $("cards").querySelectorAll("button[data-topic]").forEach(b => b.addEventListener("click", () => {
       state.topic = b.dataset.topic;
@@ -152,15 +176,15 @@
     const V = D.variables[varKey];
     if (!hasData(varKey, placeKey)) {
       return `<div class="card" style="--c:#CBD2DB"><div class="q">${V.emoji} ${V.question}</div>
-        <div class="a sm">Not measured here</div>
-        <div class="s">No tide gauge: this place is inland. Pick a coastal place.</div></div>`;
+        <div class="a sm">${t("card.notMeasured")}</div>
+        <div class="s">${t("card.inland")}</div></div>`;
     }
     const r = analysis(seriesKey(varKey, placeKey), varKey), v = VERDICT[r.verdict];
     return `<div class="card" style="--c:${v.color}"><div class="q">${V.emoji} ${V.question}</div>
       <div class="a">${shortAnswer(r, V)}</div>
-      <div class="n">${signed(r.totalChange, unitOf(varKey))} since ${r.start.year}</div>
-      <div class="s">How sure: <b>${v.sure}</b></div>
-      <button type="button" data-topic="${varKey}">See the evidence</button></div>`;
+      <div class="n">${t("card.since", { change: signed(r.totalChange, unitOf(varKey)), year: r.start.year })}</div>
+      <div class="s">${t("card.howSure")} <b>${v.sure}</b></div>
+      <button type="button" data-topic="${varKey}">${t("card.see")}</button></div>`;
   }
 
   function renderEvidence() {
@@ -177,71 +201,73 @@
     const yk = varKey + "|" + placeKey;
     let [y0, y1] = state.years[yk] || [first, last];
     const r = analysis(key, varKey, y0, y1);
-    const where = V.tides ? `${D.stations[P.tide].name} tide gauge` : P.name;
-    const source = V.tides ? `NOAA tide gauge at ${D.stations[P.tide].name} (station ${P.tide})` : V.source;
+    const where = V.tides ? t("detail.gauge", { name: D.stations[P.tide].name }) : P.name;
+    const source = V.tides ? t("detail.gaugeSource", { name: D.stations[P.tide].name, id: P.tide }) : V.source;
     const opts = sel => Array.from({ length: last - first + 1 }, (_, i) => first + i)
       .map(y => `<option${y === sel ? " selected" : ""}>${y}</option>`).join("");
 
-    let html = `<div class="years"><span>📅 Years:</span><select id="y0" aria-label="First year">${opts(y0)}</select>
-      <span>to</span><select id="y1" aria-label="Last year">${opts(y1)}</select>
-      ${y0 !== first || y1 !== last ? '<button type="button" id="yall">All years</button>' : ""}</div>
-      <p class="muted small">Short periods often can't prove a trend: try shrinking the range and watch the answer change.</p>`;
+    let html = `<div class="years"><span>${t("years.label")}</span><select id="y0" aria-label="${t("years.first")}">${opts(y0)}</select>
+      <span>${t("years.to")}</span><select id="y1" aria-label="${t("years.last")}">${opts(y1)}</select>
+      ${y0 !== first || y1 !== last ? `<button type="button" id="yall">${t("years.all")}</button>` : ""}</div>
+      <p class="muted small">${t("years.hint")}</p>`;
 
     if (!r) {
-      $("detail").innerHTML = html + `<div class="err">Please choose at least 2 years.</div>`;
+      $("detail").innerHTML = html + `<div class="err">${t("years.tooFew")}</div>`;
       bindYears(yk, first, last);
       return;
     }
     const v = VERDICT[r.verdict], ends = trendLine(r).y;
     html += `
       <div class="verdict" style="--c:${v.color}"><div class="h">${headline(r, V, P.name)}</div>
-        <div class="t">From ${r.start.year} to ${r.end.year}, the trend for ${V.measure.toLowerCase()} went from about
-        <b>${value(ends[0], unit)}</b> to about <b>${value(ends[ends.length - 1], unit)}</b>.</div></div>
+        <div class="t">${t("detail.went", { y0: r.start.year, y1: r.end.year, measure: V.measure.toLowerCase(),
+          a: value(ends[0], unit), b: value(ends[ends.length - 1], unit) })}</div></div>
       <div class="metrics">
-        <div class="metric"><div class="l">Total change since ${r.start.year}</div><div class="v">${signed(r.totalChange, unit)}</div></div>
-        <div class="metric"><div class="l">Change every 10 years</div><div class="v">${signed(r.senPerDecade, unit)}</div></div>
-        <div class="metric" title="${v.explain}"><div class="l">How sure are we?</div><div class="v" style="color:${v.color}">${v.sure}</div></div>
+        <div class="metric"><div class="l">${t("detail.total", { year: r.start.year })}</div><div class="v">${signed(r.totalChange, unit)}</div></div>
+        <div class="metric"><div class="l">${t("detail.per10")}</div><div class="v">${signed(r.senPerDecade, unit)}</div></div>
+        <div class="metric" title="${v.explain}"><div class="l">${t("detail.howSure")}</div><div class="v" style="color:${v.color}">${v.sure}</div></div>
       </div>
       <p class="muted small">${v.explain}</p>
       <div id="detail-chart" class="chart"></div>
-      <p class="muted small">Each dot is one year. The thick line is the steady trend. Data: ${source}.</p>`;
+      <p class="muted small">${t("detail.caption", { source })}</p>
+      <p class="small">${t("detail.readHelp")}</p>`;
 
     if (r.verdict !== "significant" && r.yearsMore !== null) {
       html += r.yearsMore > 100
-        ? `<div class="info">⏳ The change is tiny compared with the random ups and downs, so there may be no real trend here.</div>`
-        : `<div class="info">⏳ If it keeps changing at this speed, about <b>${Math.max(1, Math.round(r.yearsMore))} more year(s)</b> of measurements could prove it. (A rough estimate.)</div>`;
+        ? `<div class="info">${t("detail.tiny")}</div>`
+        : `<div class="info">${t("detail.more", { n: Math.max(1, Math.round(r.yearsMore)) })}</div>`;
     }
-    html += `<details><summary>❓ What is ${V.name.toLowerCase()} and why does it matter?</summary><div>
-      <p>${V.definition}</p><p><b>Why it matters:</b> ${V.why}</p>
-      <p><b>Measured at:</b> ${where}<br><b>Source:</b> ${V.source}</p></div></details>`;
+    html += `<details><summary>${t("detail.what", { name: theName(V) })}</summary><div>
+      <p>${V.definition}</p><p><b>${t("detail.why")}</b> ${V.why}</p>
+      <p><b>${t("detail.where")}</b> ${where}<br><b>${t("detail.source")}</b> ${V.source}</p></div></details>`;
     if (r.verdict !== "none" && r.direction !== "flat") {
       const C = D.causes[varKey];
-      html += `<details><summary>🤔 Why might this be happening?</summary><div><p>${C[r.direction]}</p>
-        <p class="muted small">These are possible causes, not proof. A trend shows that something changed, not why.</p>
-        <p><b>Learn more:</b> ${C.sources.map(([t, u]) => `<a href="${u}" target="_blank" rel="noopener">${t}</a>`).join(" · ")}</p>
+      html += `<details><summary>${t("detail.cause")}</summary><div><p>${C[r.direction]}</p>
+        <p class="muted small">${t("detail.causeNote")}</p>
+        <p><b>${t("detail.learn")}</b> ${C.sources.map(([t, u]) => `<a href="${u}" target="_blank" rel="noopener">${t}</a>`).join(" · ")}</p>
         </div></details>`;
     }
     const f = Stats.formatP, g = x => (x >= 0 ? "+" : "") + Number(x.toPrecision(3));
-    html += `<details><summary>🔬 The science details (for experts)</summary><div><div class="table-scroll"><table>
-      <thead><tr><th>Test</th><th>Result</th><th>What it tells us</th></tr></thead><tbody>
-      <tr><td><b>Mann-Kendall test</b></td><td>${f(r.mkP)} (tau = ${r.tau.toFixed(2)})</td><td>Are later months higher (or lower) than earlier ones more often than chance? Sets the answer.</td></tr>
-      <tr><td><b>Sen's slope</b></td><td>${g(r.senPerDecade)} ${unit} per decade</td><td>The typical rate of change. Outliers barely affect it.</td></tr>
-      <tr><td><b>Linear regression (t-test)</b></td><td>${g(r.slopePerDecade)} ${unit} per decade, ${f(r.linearP)}</td><td>Best-fit straight line and a test of its slope.</td></tr>
-      <tr><td><b>95% confidence interval</b></td><td>${g(r.ciLowPerDecade)} to ${g(r.ciHighPerDecade)} ${unit} per decade</td><td>The true rate is very likely in this range.</td></tr>
-      <tr><td><b>Corrected Mann-Kendall</b></td><td>${f(r.mkPCorrected)}</td><td>Stricter version for neighboring months being similar (autocorrelation ${r.lag1.toFixed(2)}, about ${Math.round(r.effectiveN)} independent months).</td></tr>
-      <tr><td><b>Data used</b></td><td>${r.nMonths} months, ${r.start.year} to ${r.end.year}</td><td>Seasons removed: each month is compared with the average for that calendar month.</td></tr>
+    const pd = t("sci.perDecade");
+    html += `<details><summary>${t("sci.summary")}</summary><div><div class="table-scroll"><table>
+      <thead><tr><th>${t("sci.test")}</th><th>${t("sci.result")}</th><th>${t("sci.tells")}</th></tr></thead><tbody>
+      <tr><td><b>${L(I18N_DATA.glossary[1][1][2][0])}</b></td><td>${f(r.mkP)} (tau = ${r.tau.toFixed(2)})</td><td>${t("sci.mk")}</td></tr>
+      <tr><td><b>${L(I18N_DATA.glossary[1][1][3][0])}</b></td><td>${g(r.senPerDecade)} ${unit} ${pd}</td><td>${t("sci.sen")}</td></tr>
+      <tr><td><b>${t("sci.lin")}</b></td><td>${g(r.slopePerDecade)} ${unit} ${pd}, ${f(r.linearP)}</td><td>${t("sci.linTells")}</td></tr>
+      <tr><td><b>${t("sci.ci")}</b></td><td>${g(r.ciLowPerDecade)} ${t("sci.to")} ${g(r.ciHighPerDecade)} ${unit} ${pd}</td><td>${t("sci.ciTells")}</td></tr>
+      <tr><td><b>${t("sci.mkc")}</b></td><td>${f(r.mkPCorrected)}</td><td>${t("sci.mkcTells", { lag: r.lag1.toFixed(2), n: Math.round(r.effectiveN) })}</td></tr>
+      <tr><td><b>${t("sci.used")}</b></td><td>${t("sci.usedVal", { n: r.nMonths, y0: r.start.year, y1: r.end.year })}</td><td>${t("sci.usedTells")}</td></tr>
       </tbody></table></div>
-      <p class="muted small">Very sure = p &lt; 0.05 · Not sure yet = 0.05 to 0.25 · No real evidence = above 0.25.</p>
-      <a class="dl" id="csv" href="#" download="${varKey}_${placeKey}.csv">⬇️ Download this data (${unit}, CSV)</a></div></details>`;
+      <p class="muted small">${t("sci.legend")}</p>
+      <a class="dl" id="csv" href="#" download="${varKey}_${placeKey}.csv">${t("sci.download", { unit })}</a></div></details>`;
 
     $("detail").innerHTML = html;
     bindYears(yk, first, last);
 
     const yr = yearly(r), tl = trendLine(r);
     Plotly.react("detail-chart", [
-      { x: yr.x, y: yr.y, mode: "lines+markers", name: "Each year's average", line: { color: "#A0AEC0", width: 1.5 },
+      { x: yr.x, y: yr.y, mode: "lines+markers", name: t("chart.yearAvg"), line: { color: "#A0AEC0", width: 1.5 },
         marker: { size: 6, color: "#4A5568" }, hovertemplate: `%{y:.2f} ${unit}<extra></extra>`, xhoverformat: "%Y" },
-      { x: tl.x, y: tl.y, mode: "lines", name: "Trend", line: { color: v.color, width: 4 }, hoverinfo: "skip" },
+      { x: tl.x, y: tl.y, mode: "lines", name: t("chart.trend"), line: { color: v.color, width: 4 }, hoverinfo: "skip" },
     ], chartLayout(`${V.measure} (${unit})`, chartHeight()), PLOT_CONFIG);
 
     $("csv").addEventListener("click", e => {
@@ -272,7 +298,7 @@
     let spots;
     if (V.tides) {
       spots = Object.entries(D.stations).map(([sid, s]) => [s.name, s.lat, s.lon, "t_" + sid]);
-      $("map-note").textContent = "Sea level is measured by tide gauges, so the dots are on the coast.";
+      $("map-note").textContent = t("map.seaNote");
     } else {
       spots = D.mapPoints.filter(p => D.series[p.power] && D.series[p.power][varKey])
         .map(p => [`${p.lat.toFixed(1)}°N, ${Math.abs(p.lon).toFixed(1)}°W`, p.lat, p.lon, p.power]);
@@ -282,19 +308,19 @@
     const sig = results.filter(x => x.r.verdict === "significant"), rest = results.filter(x => x.r.verdict !== "significant");
     const limit = Math.max(...results.map(x => Math.abs(x.r.senPerDecade))) || 1;
     const label = x => (x.r.senPerDecade >= 0 ? "+" : "") + x.r.senPerDecade.toFixed(2);
-    const hover = x => `<b>${x.name}</b><br>${signed(x.r.senPerDecade, unit)} every 10 years<br>How sure: ${VERDICT[x.r.verdict].sure}`;
+    const hover = x => `<b>${x.name}</b><br>${t("every10", { x: signed(x.r.senPerDecade, unit) })}<br>${t("card.howSure")} ${VERDICT[x.r.verdict].sure}`;
     const traces = [];
     if (rest.length) traces.push({
-      type: "scattermap", name: "No clear change", lat: rest.map(x => x.lat), lon: rest.map(x => x.lon),
+      type: "scattermap", name: t("map.noClear"), lat: rest.map(x => x.lat), lon: rest.map(x => x.lon),
       mode: "markers+text", text: rest.map(label), textposition: "middle right", textfont: { size: 11, color: "#4A5568" },
       hovertext: rest.map(hover), hoverinfo: "text", marker: { size: 11, color: "#B8BEC7" },
     });
     if (sig.length) traces.push({
-      type: "scattermap", name: "Clear change", lat: sig.map(x => x.lat), lon: sig.map(x => x.lon),
+      type: "scattermap", name: t("map.clear"), lat: sig.map(x => x.lat), lon: sig.map(x => x.lon),
       mode: "markers+text", text: sig.map(label), textposition: "middle right", textfont: { size: 12, color: "#1A202C" },
       hovertext: sig.map(hover), hoverinfo: "text",
       marker: { size: 18, color: sig.map(x => x.r.senPerDecade), colorscale: varKey === "rainfall" ? BROWN_GREEN : RED_BLUE,
-        cmin: -limit, cmax: limit, showscale: true, colorbar: { title: { text: `${unit}<br>per 10 yrs` }, thickness: 14 } },
+        cmin: -limit, cmax: limit, showscale: true, colorbar: { title: { text: t("map.colorbar", { unit }) }, thickness: 14 } },
     });
     const small = window.innerWidth < 560;
     Plotly.react("big-map", traces, {
@@ -307,14 +333,14 @@
       const fast = sig.reduce((a, b) => (Math.abs(b.r.senPerDecade) > Math.abs(a.r.senPerDecade) ? b : a));
       const ups = sig.filter(x => x.r.direction === "up").length;
       const up = V.up_short.toLowerCase(), down = V.down_short.toLowerCase(), sea = !!V.tides;
-      msg = `<b>${sig.length} of ${results.length} spots</b> show a clear change. `;
-      if (ups === sig.length) msg += sea ? "At all of them the sea is rising." : `All of them are getting ${up}.`;
-      else if (ups === 0) msg += sea ? "At all of them the sea is falling." : `All of them are getting ${down}.`;
-      else msg += `🔀 ${ups} are ${up} and ${sig.length - ups} are ${down}: different parts of Florida are moving in opposite directions.`;
-      msg += ` The fastest change is at ${fast.name}: ${signed(fast.r.senPerDecade, unit)} every 10 years.`;
+      msg = t("map.count", { n: sig.length, total: results.length });
+      if (ups === sig.length) msg += sea ? t("map.allSeaUp") : t("map.allSame", { word: up });
+      else if (ups === 0) msg += sea ? t("map.allSeaDown") : t("map.allSame", { word: down });
+      else msg += t("map.mixed", { ups, up, downs: sig.length - ups, down });
+      msg += t("map.fastest", { name: fast.name, x: signed(fast.r.senPerDecade, unit) });
       $("map-summary").innerHTML = `<div class="ok">${msg}</div>`;
     } else {
-      $("map-summary").innerHTML = `<div class="info">No spot shows a clear change for this topic.</div>`;
+      $("map-summary").innerHTML = `<div class="info">${t("map.none")}</div>`;
     }
   }
 
@@ -328,10 +354,10 @@
     if (!opts.includes(state.cmpB)) state.cmpB = opts.includes("pensacola") ? "pensacola" : opts[opts.length - 1];
     fillSelect($("cmp-a"), opts, state.cmpA);
     fillSelect($("cmp-b"), opts, state.cmpB);
-    $("cmp-note").textContent = V.tides ? "Sea level is only measured on the coast, so only coastal places are listed." : "";
+    $("cmp-note").textContent = V.tides ? t("cmp.coast") : "";
     const pa = state.cmpA, pb = state.cmpB;
     if (pa === pb) {
-      $("cmp-cards").innerHTML = `<div class="err">Pick two different places.</div>`;
+      $("cmp-cards").innerHTML = `<div class="err">${t("cmp.same")}</div>`;
       $("cmp-summary").innerHTML = $("cmp-caption").textContent = "";
       Plotly.purge("cmp-chart");
       $("cmp-chart").hidden = true;
@@ -346,8 +372,8 @@
     $("cmp-cards").innerHTML = [[ra, pa], [rb, pb]].map(([r, k]) => {
       const v = VERDICT[r.verdict];
       return `<div class="card" style="--c:${v.color}"><div class="q">${D.places[k].name}</div>
-        <div class="a">${shortAnswer(r, V)}</div><div class="n">${signed(r.senPerDecade, unit)} every 10 years</div>
-        <div class="s">How sure: <b>${v.sure}</b></div></div>`;
+        <div class="a">${shortAnswer(r, V)}</div><div class="n">${t("every10", { x: signed(r.senPerDecade, unit) })}</div>
+        <div class="s">${t("card.howSure")} <b>${v.sure}</b></div></div>`;
     }).join("");
 
     const traces = [];
@@ -355,18 +381,17 @@
       const yr = yearly(r), tl = trendLine(r);
       traces.push({ x: yr.x, y: yr.y, mode: "lines+markers", name: D.places[k].name, opacity: 0.45,
         line: { color, width: 1 }, marker: { size: 5, color }, hovertemplate: `%{y:.2f} ${unit}`, xhoverformat: "%Y" });
-      traces.push({ x: tl.x, y: tl.y, mode: "lines", name: D.places[k].name + " trend", line: { color, width: 4 }, hoverinfo: "skip" });
+      traces.push({ x: tl.x, y: tl.y, mode: "lines", name: t("cmp.trend", { name: D.places[k].name }), line: { color, width: 4 }, hoverinfo: "skip" });
     });
     Plotly.react("cmp-chart", traces, chartLayout(`${V.measure} (${unit})`, window.innerWidth < 560 ? 340 : 420), PLOT_CONFIG);
-    $("cmp-caption").textContent = `Both places use the same years (${first} to ${last}). Each dot is one year; thick lines are the trends.`;
+    $("cmp-caption").textContent = t("cmp.caption", { y0: first, y1: last });
 
     const faster = Math.abs(ra.senPerDecade) > Math.abs(rb.senPerDecade) ? pa : pb;
     let note = "";
     if (ra.direction !== rb.direction && ra.direction !== "flat" && rb.direction !== "flat") {
-      note = "🔀 The two places are moving in <b>opposite directions</b>" +
-        (ra.verdict === "significant" && rb.verdict === "significant" ? "." : ", but at least one of them is not proven yet.");
+      note = ra.verdict === "significant" && rb.verdict === "significant" ? t("cmp.opposite") : t("cmp.oppositeMaybe");
     } else if (ra.verdict === "significant" && rb.verdict === "significant") {
-      note = `Both places show a clear change. It is faster in <b>${D.places[faster].name}</b>.`;
+      note = t("cmp.faster", { name: D.places[faster].name });
     }
     $("cmp-summary").innerHTML = note ? `<div class="info">${note}</div>` : "";
   }
@@ -384,20 +409,27 @@
       for (const [term, meaning, example] of m) {
         found++;
         html += `<details${q ? " open" : ""}><summary>${term}</summary><div><p>${meaning}</p>
-          <p class="muted small">Example: ${example}</p></div></details>`;
+          <p class="muted small">${t("gl.example")} ${example}</p></div></details>`;
       }
     }
-    $("glossary").innerHTML = found ? html : `<div class="info">No word found. Try a shorter search, like "trend".</div>`;
+    $("glossary").innerHTML = found ? html : `<div class="info">${t("gl.none")}</div>`;
   }
 
   // ======================================================================
   // Navigation and start-up
   // ======================================================================
   // "Plan a trip" lives in trip.js; it gets the helpers it needs through this object
-  const renderTrip = () => window.TripPlanner && window.TripPlanner.render({
-    D, state, seriesKey, hasData, analysis, unitOf, signed, VERDICT, PLOT_CONFIG, chartLayout,
-  });
-  const PAGES = { area: renderArea, map: renderMap, compare: renderCompare, trip: renderTrip, how: renderGlossary };
+  const ctx = () => ({ D, state, seriesKey, hasData, analysis, unitOf, signed, VERDICT, PLOT_CONFIG, chartLayout, yearly, trendLine, go });
+  const renderTrip = () => window.TripPlanner && window.TripPlanner.render(ctx());
+  const renderGuide = () => window.Guide && window.Guide.render(ctx());
+  const PAGES = { area: renderArea, guide: renderGuide, map: renderMap, compare: renderCompare, trip: renderTrip, how: renderGlossary };
+  // jump to a page with some choices already made (used by the guide's practice missions)
+  function go(page, changes) {
+    Object.assign(state, changes || {});
+    if (changes && changes.place) store.set("place", changes.place);
+    if (location.hash === "#" + page) show(); else location.hash = page;
+    window.scrollTo(0, 0);
+  }
   function currentPage() {
     const p = location.hash.replace("#", "");
     return PAGES[p] ? p : "area";
@@ -411,16 +443,18 @@
   function setUnits(u) {
     state.units = u;
     store.set("units", u);
-    document.querySelectorAll(".units button").forEach(b => b.classList.toggle("on", b.dataset.units === u));
+    document.querySelectorAll("button[data-units]").forEach(b => b.classList.toggle("on", b.dataset.units === u));
   }
 
   async function start() {
+    I18N.setLang(I18N.initial(), true);
     try {
-      D = await (await fetch("data.json")).json();
+      D0 = await (await fetch("data.json")).json();
     } catch (e) {
-      $("loading").textContent = "Sorry, the data could not be loaded. Please refresh the page.";
+      $("loading").textContent = t("loadError");
       return;
     }
+    D = localizeData(D0);
     TOPICS = Object.keys(D.variables);
     if (!D.places[state.place]) state.place = "miami";
     $("loading").remove();
@@ -430,7 +464,14 @@
     $("cmp-a").addEventListener("change", e => { state.cmpA = e.target.value; renderCompare(); });
     $("cmp-b").addEventListener("change", e => { state.cmpB = e.target.value; renderCompare(); });
     $("glossary-search").addEventListener("input", renderGlossary);
-    document.querySelectorAll(".units button").forEach(b => b.addEventListener("click", () => { setUnits(b.dataset.units); show(); }));
+    document.querySelectorAll("button[data-units]").forEach(b => b.addEventListener("click", () => { setUnits(b.dataset.units); show(); }));
+    document.querySelectorAll("[data-lang]").forEach(b => b.addEventListener("click", () => I18N.setLang(b.dataset.lang)));
+    I18N.onChange(() => {
+      D = localizeData(D0);
+      const keep = state.place;
+      fillSelect($("place"), Object.keys(D.places), keep);
+      show();
+    });
     window.addEventListener("hashchange", () => { show(); window.scrollTo(0, 0); });
 
     setUnits(state.units === "Metric" ? "Metric" : "US");

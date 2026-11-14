@@ -8,8 +8,12 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔎</text></svg>">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="trip.css">
+  <link rel="stylesheet" href="guide.css">
   <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js" defer></script>
+  <script src="i18n.js" defer></script>
+  <script src="i18n-data.js" defer></script>
   <script src="stats.js" defer></script>
+  <script src="guide.js" defer></script>
   <script src="trip.js" defer></script>
   <script src="app.js" defer></script>
 </head>
@@ -17,48 +21,64 @@
   <header class="top">
     <div class="wrap top-in">
       <a class="brand" href="#area">🔎 Earth Data Detective <span>Florida</span></a>
-      <nav id="nav" aria-label="Pages">
-        <a href="#area">🏠 My area</a>
-        <a href="#map">🗺️ Florida map</a>
-        <a href="#compare">⚖️ Compare places</a>
-        <a href="#trip">🧳 Plan a trip</a>
-        <a href="#how">📖 How it works</a>
-      </nav>
-      <div class="units" role="group" aria-label="Units">
-        <button type="button" data-units="US">°F · inches</button>
-        <button type="button" data-units="Metric">°C · mm</button>
+      <div class="tools">
+        <div class="units lang" role="group" aria-label="Language" data-i18n-aria="aria.lang">
+          <button type="button" data-lang="en" lang="en" aria-pressed="true">English</button>
+          <button type="button" data-lang="es" lang="es" aria-pressed="false">Español</button>
+          <button type="button" data-lang="ht" lang="ht" aria-pressed="false">Kreyòl</button>
+        </div>
+        <div class="units" role="group" aria-label="Units" data-i18n-aria="aria.units">
+          <button type="button" data-units="US" data-i18n="units.us">°F · inches</button>
+          <button type="button" data-units="Metric" data-i18n="units.metric">°C · mm</button>
+        </div>
       </div>
+      <nav id="nav" aria-label="Pages" data-i18n-aria="aria.pages">
+        <a href="#area" data-i18n="nav.area">🏠 My area</a>
+        <a href="#guide" data-i18n="nav.guide">🧭 Beginner's guide</a>
+        <a href="#map" data-i18n="nav.map">🗺️ Florida map</a>
+        <a href="#compare" data-i18n="nav.compare">⚖️ Compare places</a>
+        <a href="#trip" data-i18n="nav.trip">🧳 Plan a trip</a>
+        <a href="#how" data-i18n="nav.how">📖 How it works</a>
+      </nav>
     </div>
   </header>
 
   <main class="wrap">
-    <p id="loading" class="muted">Loading the data…</p>
+    <p id="loading" class="muted" data-i18n="loading">Loading the data…</p>
+    <p id="translate-note" class="muted small" data-i18n="translateNote"></p>
 
     <!-- ============ MY AREA ============ -->
     <section id="page-area" class="page" hidden>
-      <h1>Is Florida's climate changing?</h1>
-      <p class="lead">Pick a place. We check <b>40+ years of NASA and NOAA measurements</b> and tell you, in plain words,
+      <h1 data-i18n="area.h1">Is Florida's climate changing?</h1>
+      <p class="lead" data-i18n="area.lead">Pick a place. We check <b>40+ years of NASA and NOAA measurements</b> and tell you, in plain words,
         whether it is getting hotter, rainier, muggier, and whether the sea is rising.</p>
       <div class="pick">
         <div>
-          <label for="place">📍 Pick a place in Florida</label>
+          <label for="place" data-i18n="area.pick">📍 Pick a place in Florida</label>
           <select id="place"></select>
           <p id="place-about" class="muted"></p>
         </div>
         <div id="place-map" class="mini-map"></div>
       </div>
+      <div class="info guide-banner" data-i18n="area.banner"></div>
       <h2 id="cards-title"></h2>
       <div id="cards" class="cards"></div>
       <hr>
-      <h2 id="evidence">Look at the evidence</h2>
+      <h2 id="evidence" data-i18n="area.evidence">Look at the evidence</h2>
       <div id="topic-tabs" class="seg" role="tablist"></div>
       <div id="detail"></div>
     </section>
 
+    <!-- ============ BEGINNER'S GUIDE ============ -->
+    <section id="page-guide" class="page prose" hidden>
+      <h1 data-i18n="g.h1">How to read a climate trend</h1>
+      <div id="guide-body"></div>
+    </section>
+
     <!-- ============ MAP ============ -->
     <section id="page-map" class="page" hidden>
-      <h1>Where in Florida is it changing?</h1>
-      <p class="lead">The same check, repeated all over the state. Bigger colored dots show a clear change; gray dots
+      <h1 data-i18n="map.h1">Where in Florida is it changing?</h1>
+      <p class="lead" data-i18n="map.lead">The same check, repeated all over the state. Bigger colored dots show a clear change; gray dots
         show no clear change. The number is the change every 10 years.</p>
       <div id="map-topics" class="seg" role="tablist"></div>
       <p id="map-note" class="muted"></p>
@@ -68,12 +88,12 @@
 
     <!-- ============ COMPARE ============ -->
     <section id="page-compare" class="page" hidden>
-      <h1>Compare two places</h1>
-      <p class="lead">Is one part of Florida changing faster than another? Put two places side by side.</p>
+      <h1 data-i18n="cmp.h1">Compare two places</h1>
+      <p class="lead" data-i18n="cmp.lead">Is one part of Florida changing faster than another? Put two places side by side.</p>
       <div id="cmp-topics" class="seg" role="tablist"></div>
       <div class="two">
-        <div><label for="cmp-a">First place</label><select id="cmp-a"></select></div>
-        <div><label for="cmp-b">Second place</label><select id="cmp-b"></select></div>
+        <div><label for="cmp-a" data-i18n="cmp.a">First place</label><select id="cmp-a"></select></div>
+        <div><label for="cmp-b" data-i18n="cmp.b">Second place</label><select id="cmp-b"></select></div>
       </div>
       <p id="cmp-note" class="muted"></p>
       <div id="cmp-cards" class="two"></div>
@@ -84,70 +104,70 @@
 
     <!-- ============ PLAN A TRIP ============ -->
     <section id="page-trip" class="page" hidden>
-      <h1>Plan your Florida trip</h1>
-      <p class="lead">Tell us <b>where</b> you are going and <b>what you want to do</b>. We use 45 years of NASA data to show which
+      <h1 data-i18n="trip.h1">Plan your Florida trip</h1>
+      <p class="lead" data-i18n="trip.lead">Tell us <b>where</b> you are going and <b>what you want to do</b>. We use 45 years of NASA data to show which
         months suit it best, what to expect, and how Florida's changing climate is shifting those months.</p>
       <div class="two">
-        <div><label for="trip-place">📍 Where?</label><select id="trip-place"></select></div>
-        <div><label for="trip-year">📅 Year of your trip</label><select id="trip-year"></select></div>
+        <div><label for="trip-place" data-i18n="trip.where">📍 Where?</label><select id="trip-place"></select></div>
+        <div><label for="trip-year" data-i18n="trip.year">📅 Year of your trip</label><select id="trip-year"></select></div>
       </div>
-      <span class="lbl" id="trip-activity-label">🎯 What do you want to do?</span>
+      <span class="lbl" id="trip-activity-label" data-i18n="trip.what">🎯 What do you want to do?</span>
       <div id="trip-activity" class="seg" role="tablist" aria-labelledby="trip-activity-label"></div>
       <div id="trip-results"></div>
     </section>
 
     <!-- ============ HOW IT WORKS ============ -->
     <section id="page-how" class="page prose" hidden>
-      <h1>How it works</h1>
+      <h1 data-i18n="how.h1">How it works</h1>
 
-      <h2>What we do, in 4 steps</h2>
+      <h2 data-i18n="how.steps">What we do, in 4 steps</h2>
       <ol class="steps">
-        <li><b>Get the measurements.</b> Monthly values since 1981 for each place.</li>
-        <li><b>Take out the seasons.</b> Florida is always hotter in August than in January. That's not a trend, so we
+        <li data-i18n="how.s1"><b>Get the measurements.</b> Monthly values since 1981 for each place.</li>
+        <li data-i18n="how.s2"><b>Take out the seasons.</b> Florida is always hotter in August than in January. That's not a trend, so we
           compare each month only with the same month in other years (this July vs. a normal July).</li>
-        <li><b>Look for a steady change.</b> We draw the trend line and measure how fast it goes up or down: the
+        <li data-i18n="how.s3"><b>Look for a steady change.</b> We draw the trend line and measure how fast it goes up or down: the
           <i>speed of change</i>, shown per 10 years.</li>
-        <li><b>Ask: could this be luck?</b> Weather goes up and down randomly. A math test (the Mann-Kendall test)
+        <li data-i18n="how.s4"><b>Ask: could this be luck?</b> Weather goes up and down randomly. A math test (the Mann-Kendall test)
           checks how likely it is to see a trend this steady if nothing were really changing.</li>
       </ol>
 
-      <h2>What "How sure are we?" means</h2>
+      <h2 data-i18n="how.sureH">What "How sure are we?" means</h2>
       <div class="table-scroll">
         <table>
-          <thead><tr><th>Answer</th><th>Meaning</th></tr></thead>
+          <thead><tr><th data-i18n="how.answer">Answer</th><th data-i18n="how.meaning">Meaning</th></tr></thead>
           <tbody>
-            <tr><td><span class="dot" style="--c:var(--sig)"></span><b>Very sure</b></td><td>Less than a 5% chance the trend is just luck. Scientists call this <i>statistically significant</i>.</td></tr>
-            <tr><td><span class="dot" style="--c:var(--maybe)"></span><b>Not sure yet</b></td><td>There's a hint of a change, but luck could still explain it. More years of data may settle it.</td></tr>
-            <tr><td><span class="dot" style="--c:var(--none)"></span><b>No real evidence</b></td><td>The ups and downs look random.</td></tr>
+            <tr><td><span class="dot" style="--c:var(--sig)"></span><b data-i18n="v.sig.sure">Very sure</b></td><td data-i18n="how.sig">Less than a 5% chance the trend is just luck. Scientists call this <i>statistically significant</i>.</td></tr>
+            <tr><td><span class="dot" style="--c:var(--maybe)"></span><b data-i18n="v.pos.sure">Not sure yet</b></td><td data-i18n="how.pos">There's a hint of a change, but luck could still explain it. More years of data may settle it.</td></tr>
+            <tr><td><span class="dot" style="--c:var(--none)"></span><b data-i18n="v.none.sure">No real evidence</b></td><td data-i18n="how.none">The ups and downs look random.</td></tr>
           </tbody>
         </table>
       </div>
 
-      <h2>Where the data comes from</h2>
+      <h2 data-i18n="how.dataH">Where the data comes from</h2>
       <ul>
-        <li><b>Temperature, rain and humidity:</b> NASA's MERRA-2, a reconstruction of the weather built from satellites,
+        <li data-i18n="how.d1"><b>Temperature, rain and humidity:</b> NASA's MERRA-2, a reconstruction of the weather built from satellites,
           weather balloons and ground stations, delivered by <a href="https://power.larc.nasa.gov" target="_blank" rel="noopener">NASA POWER</a>.
           Monthly since 1981.</li>
-        <li><b>Sea level:</b> <a href="https://tidesandcurrents.noaa.gov" target="_blank" rel="noopener">NOAA tide gauges</a> along
+        <li data-i18n="how.d2"><b>Sea level:</b> <a href="https://tidesandcurrents.noaa.gov" target="_blank" rel="noopener">NOAA tide gauges</a> along
           Florida's coast. NASA uses tide gauge records like these to check its satellite measurements of the ocean. See NASA's
           <a href="https://sealevel.nasa.gov/" target="_blank" rel="noopener">Sea Level Change portal</a>.</li>
       </ul>
 
-      <h2>Honest limits</h2>
+      <h2 data-i18n="how.limitsH">Honest limits</h2>
       <ul>
-        <li>We look for straight-line trends. Some real changes curve or come in sudden steps.</li>
-        <li>A trend shows <i>that</i> something changed, not <i>why</i>. The "why" notes are possibilities, not proof.</li>
-        <li>MERRA-2 squares are about 50 km (30 miles) wide, so a place's value covers a whole area, not one street.</li>
-        <li>Tide gauges measure the sea compared with the land, so sinking land also shows up as rising sea.</li>
+        <li data-i18n="how.l1">We look for straight-line trends. Some real changes curve or come in sudden steps.</li>
+        <li data-i18n="how.l2">A trend shows <i>that</i> something changed, not <i>why</i>. The "why" notes are possibilities, not proof.</li>
+        <li data-i18n="how.l3">MERRA-2 squares are about 50 km (30 miles) wide, so a place's value covers a whole area, not one street.</li>
+        <li data-i18n="how.l4">Tide gauges measure the sea compared with the land, so sinking land also shows up as rising sea.</li>
       </ul>
 
-      <h2>📚 Dictionary</h2>
-      <input id="glossary-search" type="search" placeholder="Search for a word, e.g. trend, dew point, tide gauge" aria-label="Search the dictionary">
+      <h2 data-i18n="how.dict">📚 Dictionary</h2>
+      <input id="glossary-search" type="search" data-i18n-ph="how.search" placeholder="Search for a word, e.g. trend, dew point, tide gauge" aria-label="Search the dictionary">
       <div id="glossary"></div>
     </section>
   </main>
 
-  <footer class="wrap muted small">
+  <footer class="wrap muted small" data-i18n="footer">
     NASA Space Apps 2026 · Be an Earth Systems Trend Detective! · Data: NASA POWER (MERRA-2) and NOAA CO-OPS tide gauges.
   </footer>
 </body>
