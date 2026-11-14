@@ -1,5 +1,4 @@
 /* trip.css - the "Plan a trip" page (tokens come from style.css) */
-.metric .r { font-size: 0.82rem; color: var(--muted); margin-top: 4px; }
 .seg.months { gap: 6px; margin-top: 12px; }
 .seg.months button { min-height: 40px; padding: 7px 12px; font-size: 0.88rem; }
 .seg.months button .muted { font-size: 0.78rem; font-variant-numeric: tabular-nums; }

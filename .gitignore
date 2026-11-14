@@ -4,3 +4,6 @@ __pycache__/
 
 # Taste design skill: 35 MB of assets, kept local only
 .claude/skills/design-taste-frontend/
+
+# Claude Code local settings (per machine)
+.claude/settings.local.json

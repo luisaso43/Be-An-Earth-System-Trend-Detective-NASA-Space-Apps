@@ -360,21 +360,22 @@
       hovertext: rest.map(hover), hoverinfo: "text", marker: { size: 10, color: "#475569" },
     });
     // dots in neighbouring columns put their numbers above / below, so labels in a row never run into each other
+    const small = window.innerWidth < 560;
     const col = x => Math.round(x.lon * 1.6) % 2 === 0;
     [[sig.filter(col), "top center", true], [sig.filter(x => !col(x)), "bottom center", false]]
       .forEach(([set, pos, first]) => set.length && traces.push({
         type: "scattermap", name: t("map.clear"), showlegend: first, legendgroup: "clear",
         lat: set.map(x => x.lat), lon: set.map(x => x.lon),
-        mode: "markers+text", text: set.map(label), textposition: pos, textfont: { size: 12, color: "#F1F5F9" },
+        mode: "markers+text", text: set.map(label), textposition: pos, textfont: { size: 11, color: "#F1F5F9" },
         hovertext: set.map(hover), hoverinfo: "text",
-        marker: { size: 18, color: set.map(x => x.r.senPerDecade), colorscale: varKey === "rainfall" ? BROWN_GREEN : RED_BLUE,
+        marker: { size: small ? 11 : 13, color: set.map(x => x.r.senPerDecade), colorscale: varKey === "rainfall" ? BROWN_GREEN : RED_BLUE,
           cmin: -limit, cmax: limit, showscale: first,
           colorbar: { title: { text: t("map.colorbar", { unit }), font: { color: THEME.text } }, thickness: 12, tickfont: { color: THEME.muted },
             outlinewidth: 0, bgcolor: "rgba(5,7,12,0.7)", x: 0.99, xanchor: "right" } },
       }));
-    const small = window.innerWidth < 560;
     Plotly.react("big-map", traces, {
-      map: { style: "carto-darkmatter",          // keeps city names so people can find their dot zoom: small ? 4.8 : 5.4, center: { lat: 27.7, lon: -83.6 } },
+      // the dark basemap with labels keeps city names, so people can find their dot
+      map: { style: "carto-darkmatter", zoom: small ? 4.8 : 5.4, center: { lat: 27.7, lon: -83.6 } },
       height: small ? 440 : window.innerWidth < 900 ? 500 : 620, margin: { l: 0, r: 0, t: 0, b: 0 }, paper_bgcolor: THEME.bg,
       font: { family: "'Atkinson Hyperlegible Next', system-ui, sans-serif", color: THEME.text },
       legend: { orientation: "h", y: 0.99, x: 0.01, bgcolor: "rgba(5,7,12,0.75)", font: { color: THEME.text } },

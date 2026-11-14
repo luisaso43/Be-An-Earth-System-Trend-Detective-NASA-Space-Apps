@@ -7,12 +7,16 @@
   --panel-2: #111A2B;
   --line: #1E293B;
   --line-2: #2B3A52;
+  --line-hover: #3B4D6A;     /* control border on hover */
+  --placeholder: #7C8BA1;
   --text: #F1F5F9;
   --text-2: #CBD5E1;
   --muted: #94A3B8;
   --accent: #22D3EE;          /* cyan: selection, links, "very sure" */
   --accent-ink: #04212A;
   --warm: #F97316;            /* orange: second series, primary action */
+  --warm-hover: #FB8A3C;
+  --warm-ink: #1B0B00;
   --sig: #22D3EE;
   --maybe: #FBBF24;
   --none: #94A3B8;
@@ -165,11 +169,11 @@ select, input[type=search] {
 select { font: 600 1.05rem/1.3 var(--font-display); letter-spacing: -0.01em; cursor: pointer; }
 select option { background: var(--panel); color: var(--text); }
 select:focus-visible, input:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.22); }
-@media (hover: hover) and (pointer: fine) { select:hover, input[type=search]:hover { border-color: #3B4D6A; } }
+@media (hover: hover) and (pointer: fine) { select:hover, input[type=search]:hover { border-color: var(--line-hover); } }
 .search { position: relative; }
 .search .ic { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--muted); }
 .search input { padding-left: 44px; padding-right: 16px; }
-input::placeholder { color: #7C8BA1; }
+input::placeholder { color: var(--placeholder); }
 
 /* ---- My area hero ---- */
 .hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 40px; align-items: end; }
@@ -247,7 +251,7 @@ input::placeholder { color: #7C8BA1; }
   background: rgba(34, 211, 238, 0.12); border-color: var(--accent); color: var(--text);
 }
 .seg button[aria-selected=true] .ic, .seg button[aria-pressed=true] .ic { color: var(--accent); }
-@media (hover: hover) and (pointer: fine) { .seg button:hover { border-color: #3B4D6A; color: var(--text); } }
+@media (hover: hover) and (pointer: fine) { .seg button:hover { border-color: var(--line-hover); color: var(--text); } }
 
 /* ---- evidence detail ---- */
 .years { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; color: var(--text-2); }

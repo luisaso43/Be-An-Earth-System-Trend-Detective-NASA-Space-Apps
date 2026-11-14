@@ -37,9 +37,9 @@
 .seg button[aria-pressed=true] .muted { color: var(--text-2); }
 .big-btn {
   display: inline-flex; align-items: center; gap: 10px; min-height: 48px; margin-top: 4px;
-  border: 0; background: var(--warm); color: #1B0B00; font: 600 1rem/1.2 var(--font-display); padding: 12px 22px; border-radius: 12px;
+  border: 0; background: var(--warm); color: var(--warm-ink); font: 600 1rem/1.2 var(--font-display); padding: 12px 22px; border-radius: 12px;
 }
-@media (hover: hover) and (pointer: fine) { .big-btn:hover { background: #FB8A3C; } }
+@media (hover: hover) and (pointer: fine) { .big-btn:hover { background: var(--warm-hover); } }
 .missions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .missions button {
   display: flex; align-items: center; justify-content: space-between; gap: 14px; text-align: left; min-height: 64px;
