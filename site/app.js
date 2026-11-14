@@ -11,11 +11,19 @@
   };
   const { t, L, cap } = I18N;
   // sure/explain are getters so they always follow the current language
-  const verdict = (color, k) => ({ color, get sure() { return t(`v.${k}.sure`); }, get explain() { return t(`v.${k}.explain`); } });
-  const VERDICT = { significant: verdict("#1F6FB2", "sig"), possible: verdict("#C98A00", "pos"), none: verdict("#8A94A3", "none") };
-  const RED_BLUE = [[0, "#2166ac"], [0.25, "#67a9cf"], [0.5, "#f7f7f7"], [0.75, "#ef8a62"], [1, "#b2182b"]];
-  const BROWN_GREEN = [[0, "#8c510a"], [0.25, "#d8b365"], [0.5, "#f5f5f5"], [0.75, "#5ab4ac"], [1, "#01665e"]];
+  // level = segments lit on the certainty meter; dash = how the trend line is drawn (never colour alone)
+  const verdict = (color, k, level, dash) => ({ color, level, dash,
+    get sure() { return t(`v.${k}.sure`); }, get explain() { return t(`v.${k}.explain`); } });
+  const VERDICT = { significant: verdict("#22D3EE", "sig", 3, "solid"), possible: verdict("#FBBF24", "pos", 2, "dash"),
+    none: verdict("#94A3B8", "none", 1, "dot") };
+  const RED_BLUE = [[0, "#3B82F6"], [0.25, "#7DB4FF"], [0.5, "#E2E8F0"], [0.75, "#FB923C"], [1, "#EF4444"]];
+  const BROWN_GREEN = [[0, "#B45309"], [0.25, "#F5B142"], [0.5, "#E2E8F0"], [0.75, "#2DD4BF"], [1, "#0D9488"]];
   const PLOT_CONFIG = { displayModeBar: false, responsive: true };
+  // chart colours for the dark theme (shared with guide.js and trip.js through ctx)
+  const THEME = { text: "#CBD5E1", muted: "#94A3B8", grid: "#1E293B", yearLine: "#475569", yearDot: "#CBD5E1",
+    a: "#22D3EE", b: "#F97316", panel: "#0D1320", bg: "#05070C" };
+  const meter = v => `<span class="meter" data-level="${v.level}" aria-hidden="true"><i></i><i></i><i></i></span>`;
+  const REDUCED = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   let D0, D, TOPICS;
   const store = {
@@ -70,7 +78,8 @@
   const nice = Stats.nice;
   const signed = (x, unit) => `${x > 0 ? "+" : x < 0 ? "−" : ""}${nice(Math.abs(x))} ${unit}`;
   const value = (x, unit) => `${Math.abs(x) >= 10 ? x.toFixed(1) : nice(x)} ${unit}`;
-  const topicLabel = k => `${D.variables[k].emoji} ${D.variables[k].name}`;
+  const topicIcon = k => Icon(TOPIC_ICON[k] || "target");
+  const topicLabel = k => `${topicIcon(k)}<span>${D.variables[k].name}</span>`;
   const theName = V => V.the || V.name.toLowerCase();
 
   // Swap in the Spanish / Haitian Creole text for data.json's words (i18n-data.js). Series data is shared, not copied.
@@ -125,25 +134,56 @@
   const trendLine = r => ({ x: r.points.map(dateOf), y: r.senLine.map(v => v + r.climMean) });
 
   function chartLayout(yTitle, height) {
+    const small = window.innerWidth < 560;
     return {
-      height, margin: { l: 60, r: 16, t: 36, b: 40 }, plot_bgcolor: "#fff", paper_bgcolor: "#fff",
-      font: { family: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif", size: 13, color: "#2D3748" },
-      yaxis: { title: { text: yTitle }, gridcolor: "#E5E9EF", zeroline: false },
-      xaxis: { showgrid: false }, hovermode: "x unified",
-      legend: { orientation: "h", y: 1.12, x: 0 },
+      height, margin: { l: small ? 52 : 64, r: 16, t: 44, b: 40 }, plot_bgcolor: "rgba(0,0,0,0)", paper_bgcolor: "rgba(0,0,0,0)",
+      font: { family: "'Atkinson Hyperlegible Next', system-ui, sans-serif", size: small ? 12 : 13, color: THEME.text },
+      yaxis: { title: { text: yTitle, font: { color: THEME.muted } }, gridcolor: THEME.grid, zeroline: false, linecolor: THEME.grid, tickfont: { color: THEME.muted } },
+      xaxis: { showgrid: false, linecolor: THEME.grid, tickfont: { color: THEME.muted } }, hovermode: "x unified",
+      hoverlabel: { bgcolor: THEME.panel, bordercolor: "#2B3A52", font: { color: "#F1F5F9", family: "'Atkinson Hyperlegible Next', system-ui, sans-serif" } },
+      legend: { orientation: "h", y: 1.14, x: 0, font: { color: THEME.text } },
     };
   }
   const chartHeight = () => (window.innerWidth < 560 ? 320 : 380);
+  // the yearly-average dots, the same everywhere
+  const yearTrace = (yr, name, unit) => ({ x: yr.x, y: yr.y, mode: "lines+markers", name, line: { color: THEME.yearLine, width: 1.5 },
+    marker: { size: 6, color: THEME.yearDot }, hovertemplate: `%{y:.2f} ${unit}<extra></extra>`, xhoverformat: "%Y" });
 
+  const MAP_STYLE = "carto-darkmatter-nolabels";   // our own labels carry the names; basemap labels collided with the dots
   function smallMap(div, pts, height) {
-    Plotly.react(div, [{
-      type: "scattermap", lat: pts.map(p => p[1]), lon: pts.map(p => p[2]), text: pts.map(p => p[0]),
-      mode: "markers+text", textposition: "top right", hoverinfo: "text", marker: { size: 15, color: "#E76F51" },
-    }], {
-      map: { style: "open-street-map", zoom: window.innerWidth < 560 ? 5.2 : 5.8, center: { lat: pts[0][1], lon: pts[0][2] } },
-      height, margin: { l: 0, r: 0, t: 0, b: 0 }, showlegend: false,
+    Plotly.react(div, [
+      { type: "scattermap", lat: pts.map(p => p[1]), lon: pts.map(p => p[2]), mode: "markers", hoverinfo: "skip",
+        marker: { size: 34, color: "rgba(34,211,238,0.18)" } },
+      { type: "scattermap", lat: pts.map(p => p[1]), lon: pts.map(p => p[2]), text: pts.map(p => p[0]),
+        mode: "markers+text", textposition: "top right", hoverinfo: "text", textfont: { color: "#F1F5F9", size: 13 },
+        marker: { size: 13, color: THEME.a } },
+    ], {
+      map: { style: MAP_STYLE, zoom: window.innerWidth < 560 ? 5.2 : 5.8, center: { lat: pts[0][1], lon: pts[0][2] } },
+      height, margin: { l: 0, r: 0, t: 0, b: 0 }, showlegend: false, paper_bgcolor: THEME.bg,
     }, PLOT_CONFIG);
   }
+
+  // figures roll from their last value to the new one when the place changes (a launch-readout touch)
+  const lastFig = new Map();
+  function rollFigures(root) {
+    root.querySelectorAll("[data-roll]").forEach(el => {
+      const to = +el.dataset.roll, key = el.dataset.key, unit = el.dataset.unit, from = lastFig.has(key) ? lastFig.get(key) : 0;
+      lastFig.set(key, to);
+      const paint = x => { el.innerHTML = figHTML(x, unit); };
+      if (REDUCED || from === to) return paint(to);
+      const t0 = performance.now(), dur = 650;
+      const step = now => {
+        const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(2, -10 * k);
+        paint(k >= 1 ? to : from + (to - from) * e);
+        if (k < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    });
+  }
+  const figHTML = (x, unit) => {
+    const s = signed(x, unit), i = s.lastIndexOf(" " + unit);
+    return i > 0 ? `${s.slice(0, i)}<span class="u">${unit}</span>` : s;
+  };
 
   function segmented(el, options, selected, onPick) {
     el.innerHTML = options.map(k =>
@@ -161,9 +201,11 @@
     const P = D.places[state.place];
     $("place").value = state.place;
     $("place-about").textContent = P.about;
-    smallMap($("place-map"), [[P.name, P.lat, P.lon]], 200);
+    smallMap($("place-map"), [[P.name, P.lat, P.lon]], window.innerWidth <= 760 ? 160 : window.innerWidth < 900 ? 200 : 230);
     $("cards-title").textContent = t("area.cardsTitle", { place: P.name });
     $("cards").innerHTML = TOPICS.map(k => cardHTML(k, state.place)).join("");
+    $("cards").querySelectorAll(".card").forEach((c, i) => c.style.setProperty("--i", i));
+    rollFigures($("cards"));
     $("cards").querySelectorAll("button[data-topic]").forEach(b => b.addEventListener("click", () => {
       state.topic = b.dataset.topic;
       renderEvidence();
@@ -175,16 +217,18 @@
   function cardHTML(varKey, placeKey) {
     const V = D.variables[varKey];
     if (!hasData(varKey, placeKey)) {
-      return `<div class="card" style="--c:#CBD2DB"><div class="q">${V.emoji} ${V.question}</div>
-        <div class="a sm">${t("card.notMeasured")}</div>
+      return `<div class="card off"><div class="q">${topicIcon(varKey)}<span>${V.question}</span></div>
+        <div class="fig">${t("card.notMeasured")}</div>
         <div class="s">${t("card.inland")}</div></div>`;
     }
-    const r = analysis(seriesKey(varKey, placeKey), varKey), v = VERDICT[r.verdict];
-    return `<div class="card" style="--c:${v.color}"><div class="q">${V.emoji} ${V.question}</div>
+    const r = analysis(seriesKey(varKey, placeKey), varKey), v = VERDICT[r.verdict], unit = unitOf(varKey);
+    return `<div class="card" style="--c:${v.color}"><div class="q">${topicIcon(varKey)}<span>${V.question}</span></div>
+      <div class="fig" data-roll="${r.totalChange}" data-unit="${unit}" data-key="${varKey}">${figHTML(r.totalChange, unit)}</div>
+      <div class="since">${t("card.since", { change: "", year: r.start.year }).trim()}</div>
       <div class="a">${shortAnswer(r, V)}</div>
-      <div class="n">${t("card.since", { change: signed(r.totalChange, unitOf(varKey)), year: r.start.year })}</div>
-      <div class="s">${t("card.howSure")} <b>${v.sure}</b></div>
-      <button type="button" data-topic="${varKey}">${t("card.see")}</button></div>`;
+      <div class="n">${t("every10", { x: signed(r.senPerDecade, unit) })}</div>
+      <div class="s sure">${meter(v)}<span><span class="hs">${t("card.howSure")}</span> <b>${v.sure}</b></span></div>
+      <button type="button" class="stretch" data-topic="${varKey}"><span>${t("card.see")}</span>${Icon("arrow")}</button></div>`;
   }
 
   function renderEvidence() {
@@ -206,8 +250,8 @@
     const opts = sel => Array.from({ length: last - first + 1 }, (_, i) => first + i)
       .map(y => `<option${y === sel ? " selected" : ""}>${y}</option>`).join("");
 
-    let html = `<div class="years"><span>${t("years.label")}</span><select id="y0" aria-label="${t("years.first")}">${opts(y0)}</select>
-      <span>${t("years.to")}</span><select id="y1" aria-label="${t("years.last")}">${opts(y1)}</select>
+    let html = `<div class="years">${Icon("cal")}<span>${t("years.label")}</span><div class="select"><select id="y0" aria-label="${t("years.first")}">${opts(y0)}</select></div>
+      <span>${t("years.to")}</span><div class="select"><select id="y1" aria-label="${t("years.last")}">${opts(y1)}</select></div>
       ${y0 !== first || y1 !== last ? `<button type="button" id="yall">${t("years.all")}</button>` : ""}</div>
       <p class="muted small">${t("years.hint")}</p>`;
 
@@ -222,11 +266,12 @@
         <div class="t">${t("detail.went", { y0: r.start.year, y1: r.end.year, measure: V.measure.toLowerCase(),
           a: value(ends[0], unit), b: value(ends[ends.length - 1], unit) })}</div></div>
       <div class="metrics">
-        <div class="metric"><div class="l">${t("detail.total", { year: r.start.year })}</div><div class="v">${signed(r.totalChange, unit)}</div></div>
-        <div class="metric"><div class="l">${t("detail.per10")}</div><div class="v">${signed(r.senPerDecade, unit)}</div></div>
-        <div class="metric" title="${v.explain}"><div class="l">${t("detail.howSure")}</div><div class="v" style="color:${v.color}">${v.sure}</div></div>
+        <div class="metric"><div class="l">${t("sci.used")}</div><div class="v sm">${t("sci.usedVal", { n: r.nMonths, y0: r.start.year, y1: r.end.year })}</div></div>
+        ${y0 !== first || y1 !== last ? `<div class="metric"><div class="l">${t("detail.total", { year: r.start.year })}</div>
+          <div class="v">${signed(r.totalChange, unit)}</div><div class="r">${t("every10", { x: signed(r.senPerDecade, unit) })}</div></div>` : ""}
+        <div class="metric"><div class="l">${t("detail.howSure")}</div><div class="v" style="color:${v.color}">${meter(v)}${v.sure}</div>
+          <div class="r">${v.explain}</div></div>
       </div>
-      <p class="muted small">${v.explain}</p>
       <div id="detail-chart" class="chart"></div>
       <p class="muted small">${t("detail.caption", { source })}</p>
       <p class="small">${t("detail.readHelp")}</p>`;
@@ -258,16 +303,15 @@
       <tr><td><b>${t("sci.used")}</b></td><td>${t("sci.usedVal", { n: r.nMonths, y0: r.start.year, y1: r.end.year })}</td><td>${t("sci.usedTells")}</td></tr>
       </tbody></table></div>
       <p class="muted small">${t("sci.legend")}</p>
-      <a class="dl" id="csv" href="#" download="${varKey}_${placeKey}.csv">${t("sci.download", { unit })}</a></div></details>`;
+      <a class="dl" id="csv" href="#" download="${varKey}_${placeKey}.csv">${Icon("download")}${t("sci.download", { unit })}</a></div></details>`;
 
     $("detail").innerHTML = html;
     bindYears(yk, first, last);
 
     const yr = yearly(r), tl = trendLine(r);
     Plotly.react("detail-chart", [
-      { x: yr.x, y: yr.y, mode: "lines+markers", name: t("chart.yearAvg"), line: { color: "#A0AEC0", width: 1.5 },
-        marker: { size: 6, color: "#4A5568" }, hovertemplate: `%{y:.2f} ${unit}<extra></extra>`, xhoverformat: "%Y" },
-      { x: tl.x, y: tl.y, mode: "lines", name: t("chart.trend"), line: { color: v.color, width: 4 }, hoverinfo: "skip" },
+      yearTrace(yr, t("chart.yearAvg"), unit),
+      { x: tl.x, y: tl.y, mode: "lines", name: t("chart.trend"), line: { color: v.color, width: 3.5, dash: v.dash }, hoverinfo: "skip" },
     ], chartLayout(`${V.measure} (${unit})`, chartHeight()), PLOT_CONFIG);
 
     $("csv").addEventListener("click", e => {
@@ -312,20 +356,29 @@
     const traces = [];
     if (rest.length) traces.push({
       type: "scattermap", name: t("map.noClear"), lat: rest.map(x => x.lat), lon: rest.map(x => x.lon),
-      mode: "markers+text", text: rest.map(label), textposition: "middle right", textfont: { size: 11, color: "#4A5568" },
-      hovertext: rest.map(hover), hoverinfo: "text", marker: { size: 11, color: "#B8BEC7" },
+      mode: "markers+text", text: rest.map(label), textposition: "middle right", textfont: { size: 11, color: THEME.muted },
+      hovertext: rest.map(hover), hoverinfo: "text", marker: { size: 10, color: "#475569" },
     });
-    if (sig.length) traces.push({
-      type: "scattermap", name: t("map.clear"), lat: sig.map(x => x.lat), lon: sig.map(x => x.lon),
-      mode: "markers+text", text: sig.map(label), textposition: "middle right", textfont: { size: 12, color: "#1A202C" },
-      hovertext: sig.map(hover), hoverinfo: "text",
-      marker: { size: 18, color: sig.map(x => x.r.senPerDecade), colorscale: varKey === "rainfall" ? BROWN_GREEN : RED_BLUE,
-        cmin: -limit, cmax: limit, showscale: true, colorbar: { title: { text: t("map.colorbar", { unit }) }, thickness: 14 } },
-    });
+    // dots in neighbouring columns put their numbers above / below, so labels in a row never run into each other
+    const col = x => Math.round(x.lon * 1.6) % 2 === 0;
+    [[sig.filter(col), "top center", true], [sig.filter(x => !col(x)), "bottom center", false]]
+      .forEach(([set, pos, first]) => set.length && traces.push({
+        type: "scattermap", name: t("map.clear"), showlegend: first, legendgroup: "clear",
+        lat: set.map(x => x.lat), lon: set.map(x => x.lon),
+        mode: "markers+text", text: set.map(label), textposition: pos, textfont: { size: 12, color: "#F1F5F9" },
+        hovertext: set.map(hover), hoverinfo: "text",
+        marker: { size: 18, color: set.map(x => x.r.senPerDecade), colorscale: varKey === "rainfall" ? BROWN_GREEN : RED_BLUE,
+          cmin: -limit, cmax: limit, showscale: first,
+          colorbar: { title: { text: t("map.colorbar", { unit }), font: { color: THEME.text } }, thickness: 12, tickfont: { color: THEME.muted },
+            outlinewidth: 0, bgcolor: "rgba(5,7,12,0.7)", x: 0.99, xanchor: "right" } },
+      }));
     const small = window.innerWidth < 560;
     Plotly.react("big-map", traces, {
-      map: { style: "open-street-map", zoom: small ? 4.8 : 5.4, center: { lat: 27.7, lon: -83.6 } },
-      height: small ? 480 : 600, margin: { l: 0, r: 0, t: 0, b: 0 }, legend: { orientation: "h", y: 1.02, x: 0 },
+      map: { style: "carto-darkmatter",          // keeps city names so people can find their dot zoom: small ? 4.8 : 5.4, center: { lat: 27.7, lon: -83.6 } },
+      height: small ? 440 : window.innerWidth < 900 ? 500 : 620, margin: { l: 0, r: 0, t: 0, b: 0 }, paper_bgcolor: THEME.bg,
+      font: { family: "'Atkinson Hyperlegible Next', system-ui, sans-serif", color: THEME.text },
+      legend: { orientation: "h", y: 0.99, x: 0.01, bgcolor: "rgba(5,7,12,0.75)", font: { color: THEME.text } },
+      hoverlabel: { bgcolor: THEME.panel, bordercolor: "#2B3A52", font: { color: "#F1F5F9" } },
     }, PLOT_CONFIG);
 
     let msg;
@@ -369,19 +422,20 @@
     const first = Math.max(a0, b0), last = Math.min(a1, b1);
     const ra = analysis(ka, varKey, first, last), rb = analysis(kb, varKey, first, last);
 
-    $("cmp-cards").innerHTML = [[ra, pa], [rb, pb]].map(([r, k]) => {
+    $("cmp-cards").innerHTML = [[ra, pa, "a"], [rb, pb, "b"]].map(([r, k, side]) => {
       const v = VERDICT[r.verdict];
-      return `<div class="card" style="--c:${v.color}"><div class="q">${D.places[k].name}</div>
+      return `<div class="card" style="--c:${v.color}"><div class="q"><i class="swatch ${side}" aria-hidden="true"></i><span>${D.places[k].name}</span></div>
+        <div class="fig">${figHTML(r.senPerDecade, unit)}</div>
         <div class="a">${shortAnswer(r, V)}</div><div class="n">${t("every10", { x: signed(r.senPerDecade, unit) })}</div>
-        <div class="s">${t("card.howSure")} <b>${v.sure}</b></div></div>`;
+        <div class="s sure">${meter(v)}<span>${t("card.howSure")} <b>${v.sure}</b></span></div></div>`;
     }).join("");
 
     const traces = [];
-    [[ra, pa, "#2A6F97"], [rb, pb, "#E76F51"]].forEach(([r, k, color]) => {
-      const yr = yearly(r), tl = trendLine(r);
-      traces.push({ x: yr.x, y: yr.y, mode: "lines+markers", name: D.places[k].name, opacity: 0.45,
+    [[ra, pa, THEME.a], [rb, pb, THEME.b]].forEach(([r, k, color]) => {
+      const yr = yearly(r), tl = trendLine(r), v = VERDICT[r.verdict];
+      traces.push({ x: yr.x, y: yr.y, mode: "lines+markers", name: D.places[k].name, opacity: 0.5,
         line: { color, width: 1 }, marker: { size: 5, color }, hovertemplate: `%{y:.2f} ${unit}`, xhoverformat: "%Y" });
-      traces.push({ x: tl.x, y: tl.y, mode: "lines", name: t("cmp.trend", { name: D.places[k].name }), line: { color, width: 4 }, hoverinfo: "skip" });
+      traces.push({ x: tl.x, y: tl.y, mode: "lines", name: t("cmp.trend", { name: D.places[k].name }), line: { color, width: 3.5, dash: v.dash }, hoverinfo: "skip" });
     });
     Plotly.react("cmp-chart", traces, chartLayout(`${V.measure} (${unit})`, window.innerWidth < 560 ? 340 : 420), PLOT_CONFIG);
     $("cmp-caption").textContent = t("cmp.caption", { y0: first, y1: last });
@@ -419,7 +473,8 @@
   // Navigation and start-up
   // ======================================================================
   // "Plan a trip" lives in trip.js; it gets the helpers it needs through this object
-  const ctx = () => ({ D, state, seriesKey, hasData, analysis, unitOf, signed, VERDICT, PLOT_CONFIG, chartLayout, yearly, trendLine, go });
+  const ctx = () => ({ D, state, seriesKey, hasData, analysis, unitOf, signed, VERDICT, PLOT_CONFIG, chartLayout, yearly, trendLine, go,
+    THEME, meter, yearTrace });
   const renderTrip = () => window.TripPlanner && window.TripPlanner.render(ctx());
   const renderGuide = () => window.Guide && window.Guide.render(ctx());
   const PAGES = { area: renderArea, guide: renderGuide, map: renderMap, compare: renderCompare, trip: renderTrip, how: renderGlossary };
@@ -434,9 +489,16 @@
     const p = location.hash.replace("#", "");
     return PAGES[p] ? p : "area";
   }
+  let shownPage = null;
   function show() {
     const page = currentPage();
     for (const p of Object.keys(PAGES)) $("page-" + p).hidden = p !== page;
+    if (page !== shownPage && !REDUCED) {       // the entrance plays once per page visit, not on every re-render
+      const el = $("page-" + page);
+      el.classList.remove("enter"); void el.offsetWidth; el.classList.add("enter");
+      clearTimeout(show.timer); show.timer = setTimeout(() => el.classList.remove("enter"), 1100);
+    }
+    shownPage = page;
     document.querySelectorAll("#nav a").forEach(a => a.classList.toggle("active", a.getAttribute("href") === "#" + page));
     PAGES[page]();
   }

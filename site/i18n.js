@@ -20,6 +20,7 @@ window.I18N = (() => {
   const S = {
     // ---------- header, nav, footer ----------
     "title": ["Earth Data Detective: Florida", "Detective de Datos de la Tierra: Florida", "Detektif Done Latè: Florid"],
+    "skip": ["Skip to content", "Saltar al contenido", "Ale nan kontni an"],
     "nav.area": ["🏠 My area", "🏠 Mi zona", "🏠 Zòn mwen"],
     "nav.guide": ["🧭 Beginner's guide", "🧭 Guía para empezar", "🧭 Gid pou kòmanse"],
     "nav.map": ["🗺️ Florida map", "🗺️ Mapa de Florida", "🗺️ Kat Florid"],
@@ -402,12 +403,16 @@ window.I18N = (() => {
 
   // ---------- the engine ----------
   const fill = (s, vars) => vars ? s.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? vars[k] : m)) : s;
+  // the design draws its own icons, so emoji in the texts are dropped on the way out
+  const EMOJI = /(?:[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}][️‍]?)+\s?/gu;
+  // ⭐ names the star marker on the trip chart, so it becomes a plain star instead of disappearing
+  const plain = s => (typeof s === "string" ? s.replace(EMOJI, "").replace(/⭐️?/g, "★") : s);
   function t(key, vars) {
     const e = S[key] || (window.I18N_EXTRA && window.I18N_EXTRA[key]);
     if (!e) return key;
-    return fill(e[idx] || e[0], vars);
+    return plain(fill(e[idx] || e[0], vars));
   }
-  const L = x => (Array.isArray(x) ? (x[idx] || x[0]) : x);
+  const L = x => plain(Array.isArray(x) ? (x[idx] || x[0]) : x);
   const cap = s => (s ? s[0].toLocaleUpperCase() + s.slice(1) : s);
   const months = () => t("months").split("|");
   const monthsShort = () => t("monthsShort").split("|");

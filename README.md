@@ -60,6 +60,8 @@ The sidebar switches between US units (°F, inches) and metric (°C, mm).
 | `data_sources.py` | Gets data: saved files → live NASA POWER / NOAA tide gauges → practice data |
 | `catalog.py` | Topics, places, tide gauges, map points, dictionary, cause notes (the science writer's file) |
 | `fetch_nasa_data.py` | Downloads all NASA POWER and tide gauge data in one go |
+| `site/` | The static website (Vercel): `style.css` holds the dark "Launch Webcast" design, `icons.js` + the icon set in `index.html` replace emoji |
+| `DESIGN.md`, `PRODUCT.md` | The design system (colours, fonts, components, rules) and the product brief, for anyone changing the look |
 
 ## The science in short
 

@@ -102,7 +102,9 @@ window.TripPlanner = (() => {
   const ACTIVITY_KEYS = Object.keys(ACTIVITIES);
 
   const band = (min, k, color) => ({ min, color, get word() { return t("band." + k); } });
-  const BANDS = [band(80, "great", "#2F855A"), band(60, "good", "#6B9A2F"), band(40, "tough", "#DD6B20"), band(0, "rough", "#C0392B")];
+  const BANDS = [band(80, "great", "#34D399"), band(60, "good", "#A3E635"), band(40, "tough", "#FB923C"), band(0, "rough", "#F87171")];
+  const ACT_ICON = { parks: "ticket", beach: "sun", mud: "truck", hike: "tent" };
+  const actIcon = k => window.Icon ? Icon(ACT_ICON[k] || "target") : "";
   const bandOf = s => BANDS.find(b => s >= b.min);
 
   // ---- small helpers ----
@@ -206,7 +208,7 @@ window.TripPlanner = (() => {
     $("trip-place").innerHTML = Object.keys(C.D.places)
       .map(k => `<option value="${k}">${C.D.places[k].name}</option>`).join("");
     $("trip-activity").innerHTML = ACTIVITY_KEYS.map(k =>
-      `<button type="button" role="tab" data-k="${k}">${ACTIVITIES[k].emoji} ${actName(ACTIVITIES[k])}</button>`).join("");
+      `<button type="button" role="tab" data-k="${k}">${actIcon(k)}<span>${actName(ACTIVITIES[k])}</span></button>`).join("");
   }
 
   function render(ctx) {
@@ -236,7 +238,7 @@ window.TripPlanner = (() => {
       html += `<div class="warn">${t("trip.inland", { place: P.name })}</div>`;
     }
     html += `<h2>${t("trip.howGood", { act: actLow(act) })}</h2>
-      <p class="muted small">${act.emoji} ${L(act.about)} ${t("trip.barHelp")}</p>
+      <p class="muted small">${L(act.about)} ${t("trip.barHelp")}</p>
       <div id="trip-bars" class="chart trip-bars"></div>
       <div id="trip-months" class="seg months" role="tablist" aria-label="${t("trip.month")}">${MONTHS.map((_, i) =>
         `<button type="button" role="tab" data-m="${i}" aria-selected="${i === m}">${SHORT[i]} <span class="muted">${scores[i]}</span></button>`).join("")}</div>
@@ -266,14 +268,16 @@ window.TripPlanner = (() => {
     const el = $("trip-bars");
     Plotly.react(el, [{
       type: "bar", x: SHORT, y: scores,
-      marker: { color: scores.map(s => bandOf(s).color), line: { color: "#1A202C", width: scores.map((_, i) => i === m ? 3 : 0) } },
+      marker: { color: scores.map((s, i) => i === m ? bandOf(s).color : bandOf(s).color + "B3"),
+        line: { color: "#F1F5F9", width: scores.map((_, i) => i === m ? 2 : 0) } },
+      textfont: { color: "#CBD5E1" },
       customdata: snaps.map((s, i) => [bandOf(scores[i]).word, t("trip.hover", { t: fmtT(s.m.t), d: fmtT(s.m.d), r: fmtR(s.m.r) })]),
       hovertemplate: "<b>%{x}: %{y}</b> (%{customdata[0]})<br>%{customdata[1]}<extra></extra>",
       text: scores.map(String), textposition: "outside", cliponaxis: false,
     }], {
       ...C.chartLayout(t("trip.score"), window.innerWidth < 560 ? 300 : 340),
-      yaxis: { title: { text: t("trip.score") }, range: [0, 112], gridcolor: "#E5E9EF", zeroline: false, fixedrange: true },
-      xaxis: { showgrid: false, fixedrange: true }, hovermode: "closest", showlegend: false,
+      yaxis: { title: { text: t("trip.score"), font: { color: C.THEME.muted } }, range: [0, 112], gridcolor: C.THEME.grid, zeroline: false, fixedrange: true, tickfont: { color: C.THEME.muted } },
+      xaxis: { showgrid: false, fixedrange: true, linecolor: C.THEME.grid, tickfont: { color: C.THEME.muted } }, hovermode: "closest", showlegend: false,
     }, C.PLOT_CONFIG);
     if (el.removeAllListeners) el.removeAllListeners("plotly_click");
     el.on("plotly_click", ev => {
@@ -320,11 +324,11 @@ window.TripPlanner = (() => {
   function trendHTML(placeKey, snap, m) {
     const cards = [["temperature", snap.T], ["humidity", snap.D], ["rainfall", snap.R]].map(([k, st]) => {
       const V = C.D.variables[k], v = C.VERDICT[st.r.verdict];
-      return `<div class="card" style="--c:${v.color}"><div class="q">${V.emoji} ${cap(t("trip.every", { month: MONTHS[m], name: V.name.toLowerCase() }))}</div>
+      return `<div class="card" style="--c:${v.color}"><div class="q">${window.Icon ? Icon(TOPIC_ICON[k]) : ""}${cap(t("trip.every", { month: MONTHS[m], name: V.name.toLowerCase() }))}</div>
         <div class="a">${wordFor(st.r, V)}</div>
         <div class="n">${t("every10", { x: C.signed(dispDelta(k, st.r.senPerDecade), deltaUnit(k)) })}</div>
-        <div class="s">${t("card.howSure")} <b>${v.sure}</b></div>
-        <button type="button" data-var="${k}">${t("trip.showChart")}</button></div>`;
+        <div class="s sure">${C.meter(v)}<span>${t("card.howSure")} <b>${v.sure}</b></span></div>
+        <button type="button" data-var="${k}"><span>${t("trip.showChart")}</span>${Icon("arrow")}</button></div>`;
     }).join("");
     return `<div class="cards trip-cards">${cards}</div>`;
   }
@@ -348,13 +352,13 @@ window.TripPlanner = (() => {
 
     const layout = C.chartLayout(`${cap(t("trip.every", { month: MONTHS[m], name: what }))} (${absUnit})`, window.innerWidth < 560 ? 320 : 380);
     Plotly.react("trip-trend-chart", [
-      { x: xs, y: st.vals.map(p => dispAbs(k, p.v)), mode: "lines+markers", name: t("trip.eachMonth", { month: MONTHS[m] }), line: { color: "#A0AEC0", width: 1.5 },
-        marker: { size: 6, color: "#4A5568" }, hovertemplate: `%{y:.1f} ${absUnit}<extra></extra>`, xhoverformat: "%Y" },
-      { x: xs, y: trendY, mode: "lines", name: "Trend", line: { color: v.color, width: 4 }, hoverinfo: "skip" },
+      { x: xs, y: st.vals.map(p => dispAbs(k, p.v)), mode: "lines+markers", name: t("trip.eachMonth", { month: MONTHS[m] }), line: { color: C.THEME.yearLine, width: 1.5 },
+        marker: { size: 6, color: C.THEME.yearDot }, hovertemplate: `%{y:.1f} ${absUnit}<extra></extra>`, xhoverformat: "%Y" },
+      { x: xs, y: trendY, mode: "lines", name: t("chart.trend"), line: { color: v.color, width: 3.5, dash: v.dash }, hoverinfo: "skip" },
       { x: [`${ts.year}-07-01`], y: [dispAbs(k, st.expected)], mode: "markers", name: t("trip.expected", { year: ts.year }),
-        marker: { symbol: "star", size: 16, color: "#E76F51", line: { color: "#fff", width: 1 } },
+        marker: { symbol: "star", size: 16, color: C.THEME.b, line: { color: C.THEME.bg, width: 1 } },
         error_y: { type: "data", symmetric: false, array: [dispAbs(k, st.hi) - dispAbs(k, st.expected)],
-          arrayminus: [dispAbs(k, st.expected) - dispAbs(k, st.lo)], color: "#E76F51", thickness: 2, width: 6 },
+          arrayminus: [dispAbs(k, st.expected) - dispAbs(k, st.lo)], color: C.THEME.b, thickness: 2, width: 6 },
         hovertemplate: `${t("trip.expectedHover")}: %{y:.1f} ${absUnit}<extra></extra>` },
     ], layout, C.PLOT_CONFIG);
   }
@@ -362,7 +366,7 @@ window.TripPlanner = (() => {
   function howHTML() {
     const rows = ACTIVITY_KEYS.map(k => {
       const a = ACTIVITIES[k];
-      return `<tr><td><b>${a.emoji} ${actName(a)}</b></td><td><ul class="tight">${a.rules.map(r =>
+      return `<tr><td><b>${actName(a)}</b></td><td><ul class="tight">${a.rules.map(r =>
         `<li>${ruleText(r)}. <span class="muted">${L(r.why)}</span></li>`).join("")}</ul></td></tr>`;
     }).join("");
     return `<hr><h2>${t("trip.howH")}</h2>

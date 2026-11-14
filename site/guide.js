@@ -29,9 +29,9 @@ window.I18N_EXTRA = Object.assign(window.I18N_EXTRA || {}, {
   "g.line": ["<b>Thick line:</b> the steady trend hiding inside the zig-zag. Tilted up = increasing, down = decreasing, flat = no change.",
     "<b>Línea gruesa:</b> la tendencia constante escondida entre los zigzags. Inclinada hacia arriba = aumenta; hacia abajo = disminuye; plana = sin cambio.",
     "<b>Gwo liy:</b> tandans fèm ki kache nan zigzag la. Li panche monte = ap ogmante, li panche desann = ap diminye, li plat = pa gen chanjman."],
-  "g.color": ["<b>Line color:</b> blue = very sure, gold = not sure yet, gray = no real evidence.",
-    "<b>Color de la línea:</b> azul = muy seguros, dorado = aún no es seguro, gris = sin evidencia real.",
-    "<b>Koulè liy lan:</b> ble = nou sèten anpil, jòn = nou poko sèten, gri = pa gen vrè prèv."],
+  "g.color": ["<b>Line color and style:</b> solid cyan = very sure, dashed gold = not sure yet, dotted gray = no real evidence.",
+    "<b>Color y estilo de la línea:</b> cian continua = muy seguros, dorada a rayas = aún no es seguro, gris punteada = sin evidencia real.",
+    "<b>Koulè ak fòm liy lan:</b> ble klè plen = nou sèten anpil, jòn an tirè = nou poko sèten, gri an pwen = pa gen vrè prèv."],
   "g.annDot": ["One year", "Un año", "Yon ane"],
   "g.annHot": ["Hottest year: weather, not the trend", "El año más caluroso: es el tiempo, no la tendencia", "Ane ki pi cho a: se tan, se pa tandans"],
   "g.annLine": ["The trend", "La tendencia", "Tandans lan"],
@@ -168,9 +168,9 @@ window.Guide = (() => {
       ${sec("g4", t("g.s4"))}
       <p>${t("g.s4p")}</p>
       <div class="sure-grid">
-        <div class="card" style="--c:${VS.significant.color}"><div class="a">${VS.significant.sure}</div><div class="s">${t("g.s4sig")}</div></div>
-        <div class="card" style="--c:${VS.possible.color}"><div class="a">${VS.possible.sure}</div><div class="s">${t("g.s4pos")}</div></div>
-        <div class="card" style="--c:${VS.none.color}"><div class="a">${VS.none.sure}</div><div class="s">${t("g.s4none")}</div></div>
+        <div class="card" style="--c:${VS.significant.color}"><div class="a">${C.meter(VS.significant)}${VS.significant.sure}</div><div class="s">${t("g.s4sig")}</div></div>
+        <div class="card" style="--c:${VS.possible.color}"><div class="a">${C.meter(VS.possible)}${VS.possible.sure}</div><div class="s">${t("g.s4pos")}</div></div>
+        <div class="card" style="--c:${VS.none.color}"><div class="a">${C.meter(VS.none)}${VS.none.sure}</div><div class="s">${t("g.s4none")}</div></div>
       </div>
       <div class="warn">${t("g.s4warn")}</div>
 
@@ -183,7 +183,7 @@ window.Guide = (() => {
         <div><span class="lbl">${t("g.simYears")}</span><div class="seg" id="sim-years">${YEARS.map(n =>
           `<button type="button" data-n="${n}" aria-pressed="${n === sim.years}">${t("g.simYearsOpt", { n })}</button>`).join("")}</div></div>
       </div>
-      <button type="button" id="sim-new" class="big-btn">${t("g.simNew")}</button>
+      <button type="button" id="sim-new" class="big-btn">${t("g.simNew")}${Icon("arrow")}</button>
       <div id="sim-chart" class="chart"></div>
       <div id="sim-result" aria-live="polite"></div>
       <p class="muted small">${t("g.simLesson")}</p>
@@ -194,19 +194,17 @@ window.Guide = (() => {
       ${sec("g7", t("g.s7"))}
       <p>${t("g.s7p")}</p>
       <div class="missions">
-        <button type="button" data-m="1">${t("g.m1")}</button>
-        <button type="button" data-m="2">${t("g.m2")}</button>
-        <button type="button" data-m="3">${t("g.m3")}</button>
-        <button type="button" data-m="4">${t("g.m4")}</button>
+        ${[1, 2, 3, 4].map(i => `<button type="button" data-m="${i}"><span>${t("g.m" + i)}</span>${Icon("arrow")}</button>`).join("")}
       </div>
 
       ${sec("g8", t("g.s8"))}
-      ${[1, 2, 3].map(i => `<details><summary>❓ ${t(`g.c${i}q`)}</summary><div><p>${t(`g.c${i}a`)}</p></div></details>`).join("")}
+      ${[1, 2, 3].map(i => `<details><summary>${t(`g.c${i}q`)}</summary><div><p>${t(`g.c${i}a`)}</p></div></details>`).join("")}
       <div class="ok">${t("g.done")}</div>`;
 
     drawRealChart(r, unit);
     wireSim();
     runSim();
+    buildRail();
 
     $("guide-body").querySelectorAll(".missions button").forEach(b => b.addEventListener("click", () => {
       const m = b.dataset.m;
@@ -217,22 +215,52 @@ window.Guide = (() => {
     }));
   }
 
+  // running order beside the guide (wide screens): every step, the one you are reading lit up
+  let railObserver = null;
+  function buildRail() {
+    let rail = $("guide-rail");
+    if (!rail) {
+      rail = document.createElement("aside");   // not <nav>: the header's tab styles target nav
+      rail.id = "guide-rail";
+      rail.className = "guide-rail";
+      $("page-guide").appendChild(rail);
+    }
+    const heads = [...$("guide-body").querySelectorAll("h2[id]")];
+    rail.setAttribute("aria-label", t("g.h1"));
+    rail.innerHTML = `<ol>${heads.map(h => `<li><a href="#${h.id}" data-to="${h.id}"><span>${h.textContent.replace(/^\d+\.\s*/, "")}</span></a></li>`).join("")}</ol>`;
+    rail.querySelectorAll("a").forEach(a => a.addEventListener("click", e => {
+      e.preventDefault();                                   // keep the #guide route; just scroll
+      $(a.dataset.to).scrollIntoView({ behavior: "smooth", block: "start" });
+    }));
+    if (railObserver) railObserver.disconnect();
+    if (!("IntersectionObserver" in window)) return;
+    railObserver = new IntersectionObserver(entries => {
+      entries.forEach(en => {
+        if (!en.isIntersecting) return;
+        rail.querySelectorAll("a").forEach(a => a.classList.toggle("on", a.dataset.to === en.target.id));
+      });
+    }, { rootMargin: "-30% 0px -60% 0px" });
+    heads.forEach(h => railObserver.observe(h));
+    const first = rail.querySelector("a");
+    if (first) first.classList.add("on");
+  }
+
   // the real Miami chart, with labels pointing at a dot, the hottest year and the trend line
   function drawRealChart(r, unit) {
-    const yr = C.yearly(r), tl = C.trendLine(r), color = C.VERDICT[r.verdict].color;
+    const yr = C.yearly(r), tl = C.trendLine(r), color = C.VERDICT[r.verdict].color, dash = C.VERDICT[r.verdict].dash;
+    const box = { bgcolor: C.THEME.panel, bordercolor: "#2B3A52", borderpad: 4, arrowcolor: C.THEME.muted };
     const hot = yr.y.indexOf(Math.max(...yr.y)), mid = Math.floor(tl.x.length * 0.35), one = Math.floor(yr.x.length * 0.15);
     const small = window.innerWidth < 560;
     const layout = C.chartLayout(`${C.D.variables.temperature.measure} (${unit})`, small ? 340 : 400);
     layout.showlegend = false;
     layout.annotations = [
-      { x: yr.x[hot], y: yr.y[hot], text: t("g.annHot"), showarrow: true, arrowhead: 2, ax: small ? -70 : -140, ay: 35, font: { size: 12 }, bgcolor: "#fff" },
-      { x: yr.x[one], y: yr.y[one], text: t("g.annDot"), showarrow: true, arrowhead: 2, ax: 0, ay: 40, font: { size: 12 }, bgcolor: "#fff" },
-      { x: tl.x[mid], y: tl.y[mid], text: `<b>${t("g.annLine")}</b>`, showarrow: true, arrowhead: 2, ax: 30, ay: -50, font: { size: 13, color }, bgcolor: "#fff" },
+      { x: yr.x[hot], y: yr.y[hot], text: t("g.annHot"), showarrow: true, arrowhead: 2, ax: small ? -70 : -140, ay: 35, font: { size: 12, color: "#F1F5F9" }, ...box },
+      { x: yr.x[one], y: yr.y[one], text: t("g.annDot"), showarrow: true, arrowhead: 2, ax: 0, ay: 40, font: { size: 12, color: "#F1F5F9" }, ...box },
+      { x: tl.x[mid], y: tl.y[mid], text: `<b>${t("g.annLine")}</b>`, showarrow: true, arrowhead: 2, ax: 30, ay: -50, font: { size: 13, color }, ...box },
     ];
     Plotly.react("guide-chart", [
-      { x: yr.x, y: yr.y, mode: "lines+markers", name: t("chart.yearAvg"), line: { color: "#A0AEC0", width: 1.5 },
-        marker: { size: 6, color: "#4A5568" }, hovertemplate: `%{y:.2f} ${unit}<extra></extra>`, xhoverformat: "%Y" },
-      { x: tl.x, y: tl.y, mode: "lines", name: t("chart.trend"), line: { color, width: 4 }, hoverinfo: "skip" },
+      C.yearTrace(yr, t("chart.yearAvg"), unit),
+      { x: tl.x, y: tl.y, mode: "lines", name: t("chart.trend"), line: { color, width: 3.5, dash }, hoverinfo: "skip" },
     ], layout, C.PLOT_CONFIG);
   }
 
@@ -274,10 +302,9 @@ window.Guide = (() => {
     // shift the hidden line so it sits on the data (only its tilt matters)
     const off = r.climMean - hidden.reduce((s, x) => s + x, 0) / hidden.length;
     Plotly.react("sim-chart", [
-      { x: yr.x, y: yr.y, mode: "lines+markers", name: t("chart.yearAvg"), line: { color: "#A0AEC0", width: 1.5 },
-        marker: { size: 6, color: "#4A5568" }, hovertemplate: `%{y:.2f} ${unit}<extra></extra>`, xhoverformat: "%Y" },
-      { x: dates, y: hidden.map(h => h + off), mode: "lines", name: t("g.simHidden"), line: { color: "#E76F51", width: 2, dash: "dash" }, hoverinfo: "skip" },
-      { x: tl.x, y: tl.y, mode: "lines", name: t("g.simFoundLine"), line: { color: v.color, width: 4 }, hoverinfo: "skip" },
+      C.yearTrace(yr, t("chart.yearAvg"), unit),
+      { x: dates, y: hidden.map(h => h + off), mode: "lines", name: t("g.simHidden"), line: { color: C.THEME.b, width: 2, dash: "longdash" }, hoverinfo: "skip" },
+      { x: tl.x, y: tl.y, mode: "lines", name: t("g.simFoundLine"), line: { color: v.color, width: 3.5 }, hoverinfo: "skip" },
     ], C.chartLayout(t("g.simAxis", { unit }), window.innerWidth < 560 ? 300 : 340), C.PLOT_CONFIG);
 
     const found = r.verdict === "significant";

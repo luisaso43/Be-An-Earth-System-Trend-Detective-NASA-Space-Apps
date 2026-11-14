@@ -2,14 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Earth Data Detective: Florida</title>
   <meta name="description" content="Is Florida getting hotter, rainier, muggier? Is the sea rising? Plain-English answers from 40+ years of NASA and NOAA data.">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔎</text></svg>">
+  <meta name="theme-color" content="#05070C">
+  <meta name="color-scheme" content="dark">
+  <meta property="og:title" content="Earth Data Detective: Florida">
+  <meta property="og:description" content="Plain-English answers from 40+ years of NASA and NOAA climate data for any place in Florida.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%2305070C'/><circle cx='16' cy='16' r='6' fill='none' stroke='%2322D3EE' stroke-width='3'/><circle cx='16' cy='16' r='2' fill='%23F97316'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;600&family=Sora:wght@300;400;600;700&display=swap">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="trip.css">
   <link rel="stylesheet" href="guide.css">
   <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js" defer></script>
+  <script src="icons.js" defer></script>
   <script src="i18n.js" defer></script>
   <script src="i18n-data.js" defer></script>
   <script src="stats.js" defer></script>
@@ -18,84 +27,113 @@
   <script src="app.js" defer></script>
 </head>
 <body>
+  <!-- icon set (paths from Lucide, ISC licence) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.99-5.54 10.19-7.4 11.8a1 1 0 0 1-1.2 0C9.54 20.19 4 14.99 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></symbol>
+      <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16.24 7.76-1.8 5.41a2 2 0 0 1-1.27 1.27L7.76 16.24l1.8-5.41a2 2 0 0 1 1.27-1.27z"/></symbol>
+      <symbol id="i-map" viewBox="0 0 24 24"><path d="M14.1 5.55a2 2 0 0 0 1.8 0l3.65-1.83A1 1 0 0 1 21 4.62v12.76a1 1 0 0 1-.55.9l-4.55 2.27a2 2 0 0 1-1.8 0L9.9 18.45a2 2 0 0 0-1.8 0l-3.65 1.83A1 1 0 0 1 3 19.38V6.62a1 1 0 0 1 .55-.9L8.1 3.45a2 2 0 0 1 1.8 0z"/><path d="M15 5.76v15"/><path d="M9 3.24v15"/></symbol>
+      <symbol id="i-scale" viewBox="0 0 24 24"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></symbol>
+      <symbol id="i-plane" viewBox="0 0 24 24"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></symbol>
+      <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></symbol>
+      <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></symbol>
+      <symbol id="i-rain" viewBox="0 0 24 24"><path d="M4 14.9A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.24"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/></symbol>
+      <symbol id="i-drops" viewBox="0 0 24 24"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></symbol>
+      <symbol id="i-waves" viewBox="0 0 24 24"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/></symbol>
+      <symbol id="i-ticket" viewBox="0 0 24 24"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></symbol>
+      <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></symbol>
+      <symbol id="i-truck" viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></symbol>
+      <symbol id="i-tent" viewBox="0 0 24 24"><path d="M3.5 21 14 3"/><path d="M20.5 21 10 3"/><path d="M15.5 21 12 15l-3.5 6"/><path d="M2 21h20"/></symbol>
+      <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+      <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+      <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></symbol>
+      <symbol id="i-cal" viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></symbol>
+      <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
+    </defs>
+  </svg>
+
+  <a class="skip" href="#main" data-i18n="skip">Skip to content</a>
+
   <header class="top">
     <div class="wrap top-in">
-      <a class="brand" href="#area">🔎 Earth Data Detective <span>Florida</span></a>
+      <a class="brand" href="#area"><i class="beacon" aria-hidden="true"></i><span class="brand-name">Earth Data Detective</span><span class="brand-fl">Florida</span></a>
       <div class="tools">
-        <div class="units lang" role="group" aria-label="Language" data-i18n-aria="aria.lang">
-          <button type="button" data-lang="en" lang="en" aria-pressed="true">English</button>
-          <button type="button" data-lang="es" lang="es" aria-pressed="false">Español</button>
-          <button type="button" data-lang="ht" lang="ht" aria-pressed="false">Kreyòl</button>
+        <div class="pills lang" role="group" aria-label="Language" data-i18n-aria="aria.lang">
+          <button type="button" data-lang="en" lang="en" aria-pressed="true">EN</button>
+          <button type="button" data-lang="es" lang="es" aria-pressed="false">ES</button>
+          <button type="button" data-lang="ht" lang="ht" aria-pressed="false">HT</button>
         </div>
-        <div class="units" role="group" aria-label="Units" data-i18n-aria="aria.units">
+        <div class="pills units" role="group" aria-label="Units" data-i18n-aria="aria.units">
           <button type="button" data-units="US" data-i18n="units.us">°F · inches</button>
           <button type="button" data-units="Metric" data-i18n="units.metric">°C · mm</button>
         </div>
       </div>
       <nav id="nav" aria-label="Pages" data-i18n-aria="aria.pages">
-        <a href="#area" data-i18n="nav.area">🏠 My area</a>
-        <a href="#guide" data-i18n="nav.guide">🧭 Beginner's guide</a>
-        <a href="#map" data-i18n="nav.map">🗺️ Florida map</a>
-        <a href="#compare" data-i18n="nav.compare">⚖️ Compare places</a>
-        <a href="#trip" data-i18n="nav.trip">🧳 Plan a trip</a>
-        <a href="#how" data-i18n="nav.how">📖 How it works</a>
+        <a href="#area"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg><span data-i18n="nav.area">My area</span></a>
+        <a href="#guide"><svg class="ic" aria-hidden="true"><use href="#i-compass"/></svg><span data-i18n="nav.guide">Beginner's guide</span></a>
+        <a href="#map"><svg class="ic" aria-hidden="true"><use href="#i-map"/></svg><span data-i18n="nav.map">Florida map</span></a>
+        <a href="#compare"><svg class="ic" aria-hidden="true"><use href="#i-scale"/></svg><span data-i18n="nav.compare">Compare places</span></a>
+        <a href="#trip"><svg class="ic" aria-hidden="true"><use href="#i-plane"/></svg><span data-i18n="nav.trip">Plan a trip</span></a>
+        <a href="#how"><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg><span data-i18n="nav.how">How it works</span></a>
       </nav>
     </div>
   </header>
 
-  <main class="wrap">
-    <p id="loading" class="muted" data-i18n="loading">Loading the data…</p>
+  <main id="main" class="wrap" tabindex="-1">
+    <p id="loading" class="muted loading" data-i18n="loading">Loading the data…</p>
     <p id="translate-note" class="muted small" data-i18n="translateNote"></p>
 
     <!-- ============ MY AREA ============ -->
     <section id="page-area" class="page" hidden>
-      <h1 data-i18n="area.h1">Is Florida's climate changing?</h1>
-      <p class="lead" data-i18n="area.lead">Pick a place. We check <b>40+ years of NASA and NOAA measurements</b> and tell you, in plain words,
-        whether it is getting hotter, rainier, muggier, and whether the sea is rising.</p>
-      <div class="pick">
-        <div>
-          <label for="place" data-i18n="area.pick">📍 Pick a place in Florida</label>
-          <select id="place"></select>
-          <p id="place-about" class="muted"></p>
+      <div class="hero">
+        <div class="hero-text">
+          <h1 class="rise" data-i18n="area.h1">Is Florida's climate changing?</h1>
+          <p class="lead rise" data-i18n="area.lead">Pick a place. We check <b>40+ years of NASA and NOAA measurements</b> and tell you, in plain words,
+            whether it is getting hotter, rainier, muggier, and whether the sea is rising.</p>
+          <div class="field rise">
+            <label for="place"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg><span data-i18n="area.pick">Pick a place in Florida</span></label>
+            <div class="select"><select id="place"></select></div>
+            <p id="place-about" class="muted small"></p>
+          </div>
         </div>
-        <div id="place-map" class="mini-map"></div>
+        <div id="place-map" class="mini-map rise"></div>
       </div>
-      <div class="info guide-banner" data-i18n="area.banner"></div>
       <h2 id="cards-title"></h2>
       <div id="cards" class="cards"></div>
-      <hr>
-      <h2 id="evidence" data-i18n="area.evidence">Look at the evidence</h2>
+      <div class="info guide-banner" data-i18n="area.banner"></div>
+      <h2 id="evidence" class="section-gap" data-i18n="area.evidence">Look at the evidence</h2>
       <div id="topic-tabs" class="seg" role="tablist"></div>
       <div id="detail"></div>
     </section>
 
     <!-- ============ BEGINNER'S GUIDE ============ -->
-    <section id="page-guide" class="page prose" hidden>
-      <h1 data-i18n="g.h1">How to read a climate trend</h1>
+    <section id="page-guide" class="page guide-page" hidden>
+      <h1 class="rise" data-i18n="g.h1">How to read a climate trend</h1>
       <div id="guide-body"></div>
     </section>
 
     <!-- ============ MAP ============ -->
     <section id="page-map" class="page" hidden>
-      <h1 data-i18n="map.h1">Where in Florida is it changing?</h1>
-      <p class="lead" data-i18n="map.lead">The same check, repeated all over the state. Bigger colored dots show a clear change; gray dots
+      <h1 class="rise" data-i18n="map.h1">Where in Florida is it changing?</h1>
+      <p class="lead rise" data-i18n="map.lead">The same check, repeated all over the state. Bigger colored dots show a clear change; gray dots
         show no clear change. The number is the change every 10 years.</p>
       <div id="map-topics" class="seg" role="tablist"></div>
-      <p id="map-note" class="muted"></p>
+      <p id="map-note" class="muted small"></p>
       <div id="big-map" class="big-map"></div>
       <div id="map-summary"></div>
     </section>
 
     <!-- ============ COMPARE ============ -->
     <section id="page-compare" class="page" hidden>
-      <h1 data-i18n="cmp.h1">Compare two places</h1>
-      <p class="lead" data-i18n="cmp.lead">Is one part of Florida changing faster than another? Put two places side by side.</p>
+      <h1 class="rise" data-i18n="cmp.h1">Compare two places</h1>
+      <p class="lead rise" data-i18n="cmp.lead">Is one part of Florida changing faster than another? Put two places side by side.</p>
       <div id="cmp-topics" class="seg" role="tablist"></div>
       <div class="two">
-        <div><label for="cmp-a" data-i18n="cmp.a">First place</label><select id="cmp-a"></select></div>
-        <div><label for="cmp-b" data-i18n="cmp.b">Second place</label><select id="cmp-b"></select></div>
+        <div class="field"><label for="cmp-a"><i class="swatch a" aria-hidden="true"></i><span data-i18n="cmp.a">First place</span></label><div class="select"><select id="cmp-a"></select></div></div>
+        <div class="field"><label for="cmp-b"><i class="swatch b" aria-hidden="true"></i><span data-i18n="cmp.b">Second place</span></label><div class="select"><select id="cmp-b"></select></div></div>
       </div>
-      <p id="cmp-note" class="muted"></p>
+      <p id="cmp-note" class="muted small"></p>
       <div id="cmp-cards" class="two"></div>
       <div id="cmp-chart" class="chart"></div>
       <p id="cmp-caption" class="muted small"></p>
@@ -104,21 +142,21 @@
 
     <!-- ============ PLAN A TRIP ============ -->
     <section id="page-trip" class="page" hidden>
-      <h1 data-i18n="trip.h1">Plan your Florida trip</h1>
-      <p class="lead" data-i18n="trip.lead">Tell us <b>where</b> you are going and <b>what you want to do</b>. We use 45 years of NASA data to show which
+      <h1 class="rise" data-i18n="trip.h1">Plan your Florida trip</h1>
+      <p class="lead rise" data-i18n="trip.lead">Tell us <b>where</b> you are going and <b>what you want to do</b>. We use 45 years of NASA data to show which
         months suit it best, what to expect, and how Florida's changing climate is shifting those months.</p>
       <div class="two">
-        <div><label for="trip-place" data-i18n="trip.where">📍 Where?</label><select id="trip-place"></select></div>
-        <div><label for="trip-year" data-i18n="trip.year">📅 Year of your trip</label><select id="trip-year"></select></div>
+        <div class="field"><label for="trip-place"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg><span data-i18n="trip.where">Where?</span></label><div class="select"><select id="trip-place"></select></div></div>
+        <div class="field"><label for="trip-year"><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg><span data-i18n="trip.year">Year of your trip</span></label><div class="select"><select id="trip-year"></select></div></div>
       </div>
-      <span class="lbl" id="trip-activity-label" data-i18n="trip.what">🎯 What do you want to do?</span>
+      <span class="lbl" id="trip-activity-label"><svg class="ic" aria-hidden="true"><use href="#i-target"/></svg><span data-i18n="trip.what">What do you want to do?</span></span>
       <div id="trip-activity" class="seg" role="tablist" aria-labelledby="trip-activity-label"></div>
       <div id="trip-results"></div>
     </section>
 
     <!-- ============ HOW IT WORKS ============ -->
     <section id="page-how" class="page prose" hidden>
-      <h1 data-i18n="how.h1">How it works</h1>
+      <h1 class="rise" data-i18n="how.h1">How it works</h1>
 
       <h2 data-i18n="how.steps">What we do, in 4 steps</h2>
       <ol class="steps">
@@ -136,9 +174,9 @@
         <table>
           <thead><tr><th data-i18n="how.answer">Answer</th><th data-i18n="how.meaning">Meaning</th></tr></thead>
           <tbody>
-            <tr><td><span class="dot" style="--c:var(--sig)"></span><b data-i18n="v.sig.sure">Very sure</b></td><td data-i18n="how.sig">Less than a 5% chance the trend is just luck. Scientists call this <i>statistically significant</i>.</td></tr>
-            <tr><td><span class="dot" style="--c:var(--maybe)"></span><b data-i18n="v.pos.sure">Not sure yet</b></td><td data-i18n="how.pos">There's a hint of a change, but luck could still explain it. More years of data may settle it.</td></tr>
-            <tr><td><span class="dot" style="--c:var(--none)"></span><b data-i18n="v.none.sure">No real evidence</b></td><td data-i18n="how.none">The ups and downs look random.</td></tr>
+            <tr><td><span class="meter" data-level="3" aria-hidden="true"><i></i><i></i><i></i></span><b data-i18n="v.sig.sure">Very sure</b></td><td data-i18n="how.sig">Less than a 5% chance the trend is just luck. Scientists call this <i>statistically significant</i>.</td></tr>
+            <tr><td><span class="meter" data-level="2" aria-hidden="true"><i></i><i></i><i></i></span><b data-i18n="v.pos.sure">Not sure yet</b></td><td data-i18n="how.pos">There's a hint of a change, but luck could still explain it. More years of data may settle it.</td></tr>
+            <tr><td><span class="meter" data-level="1" aria-hidden="true"><i></i><i></i><i></i></span><b data-i18n="v.none.sure">No real evidence</b></td><td data-i18n="how.none">The ups and downs look random.</td></tr>
           </tbody>
         </table>
       </div>
@@ -161,14 +199,19 @@
         <li data-i18n="how.l4">Tide gauges measure the sea compared with the land, so sinking land also shows up as rising sea.</li>
       </ul>
 
-      <h2 data-i18n="how.dict">📚 Dictionary</h2>
-      <input id="glossary-search" type="search" data-i18n-ph="how.search" placeholder="Search for a word, e.g. trend, dew point, tide gauge" aria-label="Search the dictionary">
+      <h2 data-i18n="how.dict">Dictionary</h2>
+      <div class="search">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        <input id="glossary-search" type="search" data-i18n-ph="how.search" placeholder="Search for a word, e.g. trend, dew point, tide gauge" aria-label="Search the dictionary">
+      </div>
       <div id="glossary"></div>
     </section>
   </main>
 
-  <footer class="wrap muted small" data-i18n="footer">
-    NASA Space Apps 2026 · Be an Earth Systems Trend Detective! · Data: NASA POWER (MERRA-2) and NOAA CO-OPS tide gauges.
+  <footer class="foot">
+    <div class="wrap small" data-i18n="footer">
+      NASA Space Apps 2026 · Be an Earth Systems Trend Detective! · Data: NASA POWER (MERRA-2) and NOAA CO-OPS tide gauges.
+    </div>
   </footer>
 </body>
 </html>

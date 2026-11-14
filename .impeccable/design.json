@@ -1,0 +1,183 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-14T00:00:00Z",
+  "title": "Design System: Earth Data Detective: Florida",
+  "extensions": {
+    "colorMeta": {
+      "night-ground": { "role": "neutral", "displayName": "Night Ground", "canonical": "#05070C", "tonalRamp": ["#020306", "#05070C", "#0A0F1A", "#141B29", "#283245", "#4A566B", "#8A94A6", "#D5DAE2"] },
+      "night-ground-raised": { "role": "neutral", "displayName": "Night Ground Raised", "canonical": "#0A0F1A", "tonalRamp": ["#05070C", "#0A0F1A", "#111827", "#1C2536", "#323E54", "#55627A", "#939DB0", "#D8DDE5"] },
+      "console-panel": { "role": "neutral", "displayName": "Console Panel", "canonical": "#0D1320", "tonalRamp": ["#060A12", "#0D1320", "#111A2B", "#1E293B", "#2B3A52", "#475569", "#94A3B8", "#E2E8F0"] },
+      "console-panel-lit": { "role": "neutral", "displayName": "Console Panel Lit", "canonical": "#111A2B", "tonalRamp": ["#0A0F1A", "#111A2B", "#18233A", "#22304A", "#34445F", "#55657F", "#98A5BA", "#E1E6EE"] },
+      "seam": { "role": "neutral", "displayName": "Seam", "canonical": "#1E293B", "tonalRamp": ["#0F172A", "#1E293B", "#2B3A52", "#334155", "#475569", "#64748B", "#94A3B8", "#E2E8F0"] },
+      "seam-strong": { "role": "neutral", "displayName": "Seam Strong", "canonical": "#2B3A52", "tonalRamp": ["#141C2A", "#1E293B", "#2B3A52", "#3B4D6A", "#526582", "#71839E", "#A5B2C5", "#E3E8EF"] },
+      "seam-hover": { "role": "neutral", "displayName": "Seam Hover", "canonical": "#3B4D6A", "tonalRamp": ["#1A2333", "#2B3A52", "#3B4D6A", "#4A5E7E", "#617594", "#8193AD", "#B2BDCE", "#E6EAF1"] },
+      "readout-white": { "role": "neutral", "displayName": "Readout White", "canonical": "#F1F5F9", "tonalRamp": ["#1E293B", "#334155", "#475569", "#64748B", "#94A3B8", "#CBD5E1", "#E2E8F0", "#F1F5F9"] },
+      "readout-soft": { "role": "neutral", "displayName": "Readout Soft", "canonical": "#CBD5E1", "tonalRamp": ["#1E293B", "#334155", "#475569", "#64748B", "#94A3B8", "#CBD5E1", "#E2E8F0", "#F1F5F9"] },
+      "telemetry-slate": { "role": "tertiary", "displayName": "Telemetry Slate", "canonical": "#94A3B8", "tonalRamp": ["#1E293B", "#334155", "#475569", "#64748B", "#94A3B8", "#CBD5E1", "#E2E8F0", "#F1F5F9"] },
+      "placeholder-slate": { "role": "neutral", "displayName": "Placeholder Slate", "canonical": "#7C8BA1", "tonalRamp": ["#1D2430", "#323C4C", "#4B5768", "#647185", "#7C8BA1", "#A3AEBE", "#CAD1DB", "#EDF0F4"] },
+      "signal-cyan": { "role": "primary", "displayName": "Signal Cyan", "canonical": "#22D3EE", "tonalRamp": ["#04212A", "#0E4A57", "#0E7490", "#0891B2", "#06B6D4", "#22D3EE", "#67E8F9", "#CFFAFE"] },
+      "signal-cyan-ink": { "role": "primary", "displayName": "Signal Cyan Ink", "canonical": "#04212A", "tonalRamp": ["#020F13", "#04212A", "#0E4A57", "#0E7490", "#06B6D4", "#22D3EE", "#67E8F9", "#CFFAFE"] },
+      "ignition-orange": { "role": "secondary", "displayName": "Ignition Orange", "canonical": "#F97316", "tonalRamp": ["#1B0B00", "#431407", "#9A3412", "#C2410C", "#EA580C", "#F97316", "#FB8A3C", "#FFEDD5"] },
+      "ignition-orange-hover": { "role": "secondary", "displayName": "Ignition Orange Hover", "canonical": "#FB8A3C", "tonalRamp": ["#1B0B00", "#431407", "#9A3412", "#C2410C", "#EA580C", "#F97316", "#FB8A3C", "#FFEDD5"] },
+      "ignition-orange-ink": { "role": "secondary", "displayName": "Ignition Orange Ink", "canonical": "#1B0B00", "tonalRamp": ["#0D0500", "#1B0B00", "#431407", "#9A3412", "#EA580C", "#F97316", "#FDBA74", "#FFEDD5"] },
+      "hold-amber": { "role": "tertiary", "displayName": "Hold Amber", "canonical": "#FBBF24", "tonalRamp": ["#2A1E02", "#78350F", "#92400E", "#B45309", "#D97706", "#FBBF24", "#FDE68A", "#FEF3C7"] },
+      "nominal-green": { "role": "tertiary", "displayName": "Nominal Green", "canonical": "#34D399", "tonalRamp": ["#022C22", "#064E3B", "#065F46", "#047857", "#10B981", "#34D399", "#6EE7B7", "#D1FAE5"] },
+      "abort-red": { "role": "tertiary", "displayName": "Abort Red", "canonical": "#F87171", "tonalRamp": ["#2A0A0A", "#7F1D1D", "#991B1B", "#B91C1C", "#EF4444", "#F87171", "#FCA5A5", "#FEE2E2"] },
+      "chart-year-line": { "role": "neutral", "displayName": "Chart Year Line", "canonical": "#475569", "tonalRamp": ["#0F172A", "#1E293B", "#334155", "#475569", "#64748B", "#94A3B8", "#CBD5E1", "#F1F5F9"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "One page headline (h1), Sora 300, max 18ch." },
+      "figure": { "displayName": "Figure", "purpose": "Readout card numbers with tabular figures; unit at 0.42em in slate. Rolls to new values on place change." },
+      "headline": { "displayName": "Headline", "purpose": "Section headings (h2)." },
+      "verdict": { "displayName": "Verdict", "purpose": "Verdict panel headline." },
+      "title": { "displayName": "Title", "purpose": "Answer word on a readout card in its verdict colour; place select value." },
+      "body": { "displayName": "Body", "purpose": "All reading text, notes, table cells, chart text and hover labels." },
+      "lead": { "displayName": "Lead", "purpose": "Intro paragraph under a page headline, 62ch." },
+      "label": { "displayName": "Label", "purpose": "Uppercase tracked functional labels: card questions, field labels, metric labels, table headers, glossary groups." },
+      "brand": { "displayName": "Brand", "purpose": "Wordmark in the header only." }
+    },
+    "shadows": [
+      { "name": "beacon-ring", "value": "0 0 0 4px rgba(34, 211, 238, 0.14)", "purpose": "Ring around the brand's cyan beacon dot." },
+      { "name": "active-tab-seam", "value": "inset 0 0 0 1px #2B3A52", "purpose": "Inner border on the active page tab." },
+      { "name": "field-focus-ring", "value": "0 0 0 3px rgba(34, 211, 238, 0.22)", "purpose": "Keyboard focus on selects and inputs, paired with a cyan border." },
+      { "name": "horizon-glow", "value": "radial-gradient(min(1000px, 140vw) 420px at 80% -6%, rgba(34, 211, 238, 0.20), transparent 70%), radial-gradient(min(760px, 120vw) 320px at 2% -14%, rgba(249, 115, 22, 0.10), transparent 70%)", "purpose": "Fixed atmospheric light behind the top 520px of every page (not a shadow; the only ambient light in the system)." },
+      { "name": "verdict-glow", "value": "radial-gradient(600px 200px at 0% 0%, color-mix(in srgb, var(--c) 12%, transparent), transparent 70%)", "purpose": "Verdict-coloured corner glow inside the verdict panel." }
+    ],
+    "motion": [
+      { "name": "ease-out", "value": "cubic-bezier(0.23, 1, 0.32, 1)", "purpose": "Entrance, press scale, arrow nudge, chevron rotation." },
+      { "name": "entrance-rise", "value": "520ms ease-out, translateY(10px) and opacity 0 to rest; delays 0/50/90ms, map 120ms, cards 140ms + 55ms each", "purpose": "One authored entrance per page visit." },
+      { "name": "figure-roll", "value": "650ms, exponential ease-out 1 - 2^(-10k), from last value to new value", "purpose": "Readout figures roll when the place changes; paints the final value directly under reduced motion." },
+      { "name": "state-color", "value": "160ms ease", "purpose": "Background, border and text colour changes." },
+      { "name": "press-scale", "value": "scale(0.97) over 140ms ease-out; readout card scale(0.985)", "purpose": "Pressed buttons, nav tabs, download links and cards." },
+      { "name": "reduced-motion", "value": "animation and transition durations 1ms; spinner stopped; figure roll off", "purpose": "prefers-reduced-motion: reduce." }
+    ],
+    "breakpoints": [
+      { "name": "rail", "value": "1100px", "purpose": "min-width: guide running-order rail appears." },
+      { "name": "tablet", "value": "900px", "purpose": "max-width: cards two across, hero stacks." },
+      { "name": "phone", "value": "760px", "purpose": "max-width: header not sticky, compact pills, My area answers-first order, 2x2 compact cards." },
+      { "name": "phone-narrow", "value": "640px", "purpose": "max-width: metric strip stacks, smaller section gaps." },
+      { "name": "phone-small", "value": "560px", "purpose": "max-width: other card grids, compare pairs and guide grids go single column." }
+    ]
+  },
+  "components": [
+    {
+      "name": "Readout Card",
+      "kind": "card",
+      "refersTo": "readout-card",
+      "description": "One answer: question label, thin figure, since-year, answer word in verdict colour, rate, certainty meter, and an evidence action; the whole card is the link.",
+      "html": "<article class=\"ds-card\"><div class=\"ds-q\"><svg class=\"ds-ic\" viewBox=\"0 0 24 24\"><path d=\"M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z\"/></svg>Is it getting hotter?</div><div class=\"ds-fig\">+2.3<span class=\"ds-u\">°F</span></div><div class=\"ds-since\">since 1981</div><div class=\"ds-a\">Hotter</div><div class=\"ds-n\">+0.52 °F every 10 years</div><div class=\"ds-sure\"><span class=\"ds-meter\"><i></i><i></i><i></i></span>How sure: <b>Very sure</b></div><button class=\"ds-go\"><span>See the evidence</span><svg class=\"ds-ic\" viewBox=\"0 0 24 24\"><path d=\"M5 12h14M13 6l6 6-6 6\"/></svg></button></article>",
+      "css": ".ds-card { --c: #22D3EE; display: flex; flex-direction: column; max-width: 280px; background: linear-gradient(180deg, #111A2B, #0D1320); border: 1px solid #1E293B; border-radius: 14px; padding: 20px 20px 18px; color: #F1F5F9; font: 16px/1.6 'Atkinson Hyperlegible Next', system-ui, sans-serif; cursor: pointer; transition: border-color 160ms ease, transform 200ms cubic-bezier(0.23,1,0.32,1); } .ds-card:hover { border-color: #2B3A52; } .ds-card:active { transform: scale(0.985); } .ds-ic { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; } .ds-q { display: flex; align-items: center; gap: 8px; font: 600 0.72rem/1.3 Sora, system-ui, sans-serif; letter-spacing: 0.12em; text-transform: uppercase; color: #94A3B8; } .ds-q .ds-ic { color: #CBD5E1; } .ds-fig { font: 300 3rem/1 Sora, system-ui, sans-serif; letter-spacing: -0.04em; margin: 18px 0 6px; font-variant-numeric: tabular-nums; } .ds-u { font-size: 0.42em; letter-spacing: 0; font-weight: 400; color: #94A3B8; margin-left: 4px; } .ds-since { font-size: 0.8rem; color: #94A3B8; margin-bottom: 12px; } .ds-a { font: 600 1.06rem/1.3 Sora, system-ui, sans-serif; color: var(--c); } .ds-n { color: #CBD5E1; font-size: 0.92rem; margin-top: 6px; } .ds-sure { display: flex; align-items: center; gap: 10px; margin-top: 16px; font-size: 0.875rem; color: #CBD5E1; } .ds-sure b { color: #F1F5F9; font-weight: 600; } .ds-meter { display: inline-flex; gap: 3px; } .ds-meter i { width: 14px; height: 6px; border-radius: 2px; background: #22D3EE; } .ds-go { margin-top: 16px; display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 44px; padding: 10px 14px; border-radius: 10px; border: 1px solid #2B3A52; background: transparent; color: #F1F5F9; font: 500 0.9rem/1.2 'Atkinson Hyperlegible Next', system-ui, sans-serif; cursor: pointer; transition: border-color 160ms ease, background-color 160ms ease; } .ds-go .ds-ic { color: #22D3EE; transition: transform 200ms cubic-bezier(0.23,1,0.32,1); } .ds-card:hover .ds-go { border-color: #22D3EE; background: rgba(34,211,238,0.06); } .ds-card:hover .ds-go .ds-ic { transform: translateX(3px); } .ds-go:focus-visible { outline: 2px solid #22D3EE; outline-offset: 2px; }"
+    },
+    {
+      "name": "Certainty Meter",
+      "kind": "custom",
+      "refersTo": "readout-card",
+      "description": "Three segments lit by how sure we are: 3 cyan (very sure), 2 amber (not sure yet), 1 slate (no real evidence). Always paired with words.",
+      "html": "<div class=\"ds-meters\"><span><span class=\"ds-meter\" data-level=\"3\"><i></i><i></i><i></i></span>Very sure</span><span><span class=\"ds-meter\" data-level=\"2\"><i></i><i></i><i></i></span>Not sure yet</span><span><span class=\"ds-meter\" data-level=\"1\"><i></i><i></i><i></i></span>No real evidence</span></div>",
+      "css": ".ds-meters { display: flex; gap: 24px; flex-wrap: wrap; color: #CBD5E1; font: 0.875rem/1.6 'Atkinson Hyperlegible Next', system-ui, sans-serif; } .ds-meters > span { display: inline-flex; align-items: center; gap: 10px; } .ds-meter { display: inline-flex; gap: 3px; } .ds-meter i { width: 14px; height: 6px; border-radius: 2px; background: #2B3A52; } .ds-meter[data-level='3'] i { background: #22D3EE; } .ds-meter[data-level='2'] i:nth-child(-n+2) { background: #FBBF24; } .ds-meter[data-level='1'] i:first-child { background: #94A3B8; }"
+    },
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one primary action on a page, in ignition orange.",
+      "html": "<button class=\"ds-btn-primary\"><svg class=\"ds-ic\" viewBox=\"0 0 24 24\"><path d=\"M6 4l14 8-14 8z\"/></svg>Run the simulation</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 10px; min-height: 48px; border: 0; background: #F97316; color: #1B0B00; font: 600 1rem/1.2 Sora, system-ui, sans-serif; padding: 12px 22px; border-radius: 12px; cursor: pointer; transition: background-color 160ms ease, transform 140ms cubic-bezier(0.23,1,0.32,1); } .ds-btn-primary:hover { background: #FB8A3C; } .ds-btn-primary:active { transform: scale(0.97); } .ds-btn-primary:focus-visible { outline: 2px solid #22D3EE; outline-offset: 2px; } .ds-ic { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "readout-card-action",
+      "description": "Secondary actions: download links, year controls, card actions.",
+      "html": "<a class=\"ds-btn-outline\" href=\"#\"><svg class=\"ds-ic\" viewBox=\"0 0 24 24\"><path d=\"M12 4v11M7 10l5 5 5-5M5 20h14\"/></svg>Download the numbers (CSV)</a>",
+      "css": ".ds-btn-outline { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 10px 16px; border: 1px solid #2B3A52; border-radius: 10px; text-decoration: none; font: 500 1rem/1.2 'Atkinson Hyperlegible Next', system-ui, sans-serif; color: #F1F5F9; background: transparent; transition: border-color 160ms ease, transform 140ms cubic-bezier(0.23,1,0.32,1); } .ds-btn-outline:hover { border-color: #22D3EE; } .ds-btn-outline:active { transform: scale(0.97); } .ds-btn-outline:focus-visible { outline: 2px solid #22D3EE; outline-offset: 2px; } .ds-ic { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }"
+    },
+    {
+      "name": "Header Navigation",
+      "kind": "nav",
+      "refersTo": "nav-tab",
+      "description": "Translucent sticky header: beacon wordmark and language/units pills on row one, page tabs on row two.",
+      "html": "<header class=\"ds-top\"><div class=\"ds-row\"><a class=\"ds-brand\" href=\"#\"><span class=\"ds-beacon\"></span>Earth Data Detective<span class=\"ds-fl\">Florida</span></a><div class=\"ds-pills\"><button class=\"ds-on\">EN</button><button>ES</button><button>HT</button></div></div><nav class=\"ds-nav\"><a class=\"ds-active\" href=\"#\"><svg class=\"ds-ic\" viewBox=\"0 0 24 24\"><path d=\"M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z\"/><circle cx=\"12\" cy=\"10\" r=\"2.5\"/></svg>My area</a><a href=\"#\">Beginner's guide</a><a href=\"#\">Florida map</a><a href=\"#\">Compare places</a></nav></header>",
+      "css": ".ds-top { background: rgba(5,7,12,0.82); border-bottom: 1px solid #1E293B; backdrop-filter: saturate(140%) blur(14px); padding: 10px 16px 8px; } .ds-row { display: flex; align-items: center; gap: 16px; min-height: 44px; } .ds-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #F1F5F9; font: 700 0.82rem/1 Sora, system-ui, sans-serif; letter-spacing: 0.12em; text-transform: uppercase; white-space: nowrap; } .ds-fl { color: #94A3B8; font-weight: 600; } .ds-fl::before { content: '·'; margin-right: 10px; color: #2B3A52; } .ds-beacon { width: 9px; height: 9px; border-radius: 50%; background: #22D3EE; box-shadow: 0 0 0 4px rgba(34,211,238,0.14); } .ds-pills { margin-left: auto; display: flex; padding: 3px; gap: 2px; border: 1px solid #1E293B; border-radius: 999px; background: #0A0F1A; } .ds-pills button { border: 0; background: transparent; color: #94A3B8; padding: 5px 11px; border-radius: 999px; font: 600 0.78rem/1.2 Sora, system-ui, sans-serif; cursor: pointer; transition: background-color 160ms ease, color 160ms ease; } .ds-pills button:hover:not(.ds-on) { color: #F1F5F9; } .ds-pills .ds-on { background: #F1F5F9; color: #05070C; } .ds-nav { display: flex; gap: 2px; overflow-x: auto; margin-top: 4px; } .ds-nav a { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; padding: 8px 12px; border-radius: 10px; color: #94A3B8; text-decoration: none; font: 500 0.9rem/1.2 'Atkinson Hyperlegible Next', system-ui, sans-serif; transition: background-color 160ms ease, color 160ms ease, transform 140ms cubic-bezier(0.23,1,0.32,1); } .ds-nav a:hover { color: #F1F5F9; background: #0A0F1A; } .ds-nav a:active { transform: scale(0.97); } .ds-nav a:focus-visible { outline: 2px solid #22D3EE; outline-offset: 2px; } .ds-nav .ds-active { color: #F1F5F9; background: #111A2B; box-shadow: inset 0 0 0 1px #2B3A52; } .ds-nav .ds-active .ds-ic { color: #22D3EE; } .ds-ic { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }"
+    },
+    {
+      "name": "Segmented Tabs",
+      "kind": "chip",
+      "refersTo": "segment-tab",
+      "description": "Round topic and month selectors in a scrolling row; selected takes a cyan border and 12% cyan fill.",
+      "html": "<div class=\"ds-seg\" role=\"tablist\"><button role=\"tab\" aria-selected=\"true\">Temperature</button><button role=\"tab\" aria-selected=\"false\">Rain</button><button role=\"tab\" aria-selected=\"false\">Humidity</button><button role=\"tab\" aria-selected=\"false\">Sea level</button></div>",
+      "css": ".ds-seg { display: flex; gap: 6px; overflow-x: auto; } .ds-seg button { flex: none; min-height: 42px; padding: 9px 16px; border-radius: 999px; border: 1px solid #2B3A52; background: #0A0F1A; color: #CBD5E1; font: 500 0.92rem/1.2 'Atkinson Hyperlegible Next', system-ui, sans-serif; cursor: pointer; transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, transform 140ms cubic-bezier(0.23,1,0.32,1); } .ds-seg button:hover { border-color: #3B4D6A; color: #F1F5F9; } .ds-seg button:active { transform: scale(0.97); } .ds-seg button:focus-visible { outline: 2px solid #22D3EE; outline-offset: 2px; } .ds-seg button[aria-selected='true'] { background: rgba(34,211,238,0.12); border-color: #22D3EE; color: #F1F5F9; }"
+    },
+    {
+      "name": "Place Select",
+      "kind": "input",
+      "refersTo": "select-field",
+      "description": "Labelled place picker with a CSS chevron; cyan border and ring on focus.",
+      "html": "<div class=\"ds-field\"><label class=\"ds-lbl\" for=\"ds-place\">Pick a place in Florida</label><div class=\"ds-select\"><select id=\"ds-place\"><option>Miami</option><option>Tampa</option><option>Orlando</option></select></div></div>",
+      "css": ".ds-field { max-width: 460px; } .ds-lbl { display: block; margin: 0 0 8px; font: 600 0.72rem/1.2 Sora, system-ui, sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: #94A3B8; } .ds-select { position: relative; } .ds-select::after { content: ''; position: absolute; right: 16px; top: 50%; width: 8px; height: 8px; margin-top: -6px; pointer-events: none; border-right: 2px solid #94A3B8; border-bottom: 2px solid #94A3B8; transform: rotate(45deg); } .ds-select select { width: 100%; min-height: 48px; padding: 11px 44px 11px 16px; color: #F1F5F9; background: #0D1320; border: 1px solid #2B3A52; border-radius: 12px; appearance: none; -webkit-appearance: none; font: 600 1.05rem/1.3 Sora, system-ui, sans-serif; letter-spacing: -0.01em; cursor: pointer; transition: border-color 160ms ease; } .ds-select select:hover { border-color: #3B4D6A; } .ds-select select:focus-visible { outline: none; border-color: #22D3EE; box-shadow: 0 0 0 3px rgba(34,211,238,0.22); }"
+    },
+    {
+      "name": "Verdict Panel",
+      "kind": "card",
+      "refersTo": "readout-card",
+      "description": "Evidence headline panel tinted by the verdict colour (here amber, not sure yet).",
+      "html": "<div class=\"ds-verdict\"><div class=\"ds-h\">Rain in Miami may be falling, but we are not sure yet.</div><div class=\"ds-t\">About 7 more years of records would settle it.</div></div>",
+      "css": ".ds-verdict { --c: #FBBF24; padding: 22px 24px; border-radius: 14px; background: radial-gradient(600px 200px at 0% 0%, color-mix(in srgb, var(--c) 12%, transparent), transparent 70%), #0D1320; border: 1px solid color-mix(in srgb, var(--c) 38%, #1E293B); } .ds-h { font: 400 1.6rem/1.25 Sora, system-ui, sans-serif; letter-spacing: -0.02em; color: #F1F5F9; } .ds-t { font: 1.02rem/1.6 'Atkinson Hyperlegible Next', system-ui, sans-serif; margin-top: 8px; color: #CBD5E1; }"
+    },
+    {
+      "name": "Metric Strip",
+      "kind": "card",
+      "refersTo": "metric-strip",
+      "description": "One panel split by seams into equal cells of label, thin value, remark.",
+      "html": "<div class=\"ds-metrics\"><div class=\"ds-metric\"><div class=\"ds-l\">Total change</div><div class=\"ds-v\">+2.3 °F</div><div class=\"ds-r\">since 1981</div></div><div class=\"ds-metric\"><div class=\"ds-l\">Every 10 years</div><div class=\"ds-v\">+0.52 °F</div><div class=\"ds-r\">Sen's slope</div></div><div class=\"ds-metric\"><div class=\"ds-l\">How sure</div><div class=\"ds-v\">p &lt; 0.001</div><div class=\"ds-r\">Mann-Kendall</div></div></div>",
+      "css": ".ds-metrics { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); border: 1px solid #1E293B; border-radius: 14px; background: #0D1320; overflow: hidden; color: #F1F5F9; } .ds-metric { padding: 16px 20px; border-left: 1px solid #1E293B; } .ds-metric:first-child { border-left: 0; } .ds-l { font: 600 0.7rem/1.35 Sora, system-ui, sans-serif; letter-spacing: 0.12em; text-transform: uppercase; color: #94A3B8; } .ds-v { font: 300 1.75rem/1.15 Sora, system-ui, sans-serif; letter-spacing: -0.03em; margin-top: 8px; font-variant-numeric: tabular-nums; } .ds-r { font: 0.82rem/1.5 'Atkinson Hyperlegible Next', system-ui, sans-serif; color: #94A3B8; margin-top: 6px; }"
+    },
+    {
+      "name": "Note",
+      "kind": "custom",
+      "refersTo": "note",
+      "description": "Info / ok / warn / error notes, one shape, tone mixed into the panel.",
+      "html": "<div class=\"ds-note\">New here? The beginner's guide explains how to read a trend in two minutes.</div><div class=\"ds-note ds-warn\">Sea level is only measured at coastal tide gauges.</div>",
+      "css": ".ds-note { --tone: #22D3EE; margin: 0 0 12px; padding: 14px 18px; border-radius: 12px; color: #CBD5E1; font: 16px/1.6 'Atkinson Hyperlegible Next', system-ui, sans-serif; background: color-mix(in srgb, var(--tone) 8%, #0D1320); border: 1px solid color-mix(in srgb, var(--tone) 28%, #1E293B); } .ds-warn { --tone: #FBBF24; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Launch Webcast",
+    "overview": "Every answer is a live readout on a dark broadcast surface. A near-black ground carries a faint horizon glow (cyan high on the right, orange low on the left) fixed behind the top of every page; on it sit flat console panels separated by 1px seams. The figures are big and thin, the labels small, tracked and uppercase, and a three-segment certainty meter sits under every answer. The feel is mission control reading out telemetry, calm and exact, rather than a dashboard of white stat cards.\n\nThe system is dense but legible: a 1200px column, four readouts across on desktop, two by two on a phone, reading text set in a hyperlegible face at 16px with long line-height. Colour is mostly withheld. Cyan marks selection and \"very sure\", orange is the second data series and the single primary action, amber says \"not sure yet\", slate says \"no real evidence\". Depth comes from tone steps and seams, never from drop shadows. Dark is the only theme; outdoor phone legibility is carried by high-contrast text tokens.\n\nMotion is one authored moment per page visit (a short rise of the headline, map and cards) plus the readout figures rolling to their new value when the place changes. Everything else is a quick colour change or a small press scale.",
+    "keyCharacteristics": [
+      "Near-black ground with a fixed cyan/orange horizon glow, flat panels on 1px seams, no drop shadows.",
+      "Sora 300 for big thin figures and headlines; Sora 600 tracked uppercase for labels; Atkinson Hyperlegible Next for everything you read.",
+      "Certainty is always shown three ways: verdict colour, segments lit on a meter, and the trend line's dash style.",
+      "Cyan is the signal colour; orange appears only as the comparison series and the one primary action.",
+      "Lucide-style outline icons at 1.75 stroke, inline SVG, no emoji.",
+      "One entrance per page visit, figure roll on place change, everything off under reduced motion."
+    ],
+    "rules": [
+      { "name": "The Three Ways Rule", "body": "A verdict is never colour alone. Very sure = cyan, three segments lit, solid trend line. Not sure yet = amber, two segments, dashed line. No real evidence = slate, one segment, dotted line. Any new surface that states a verdict carries the meter or the line style alongside the colour.", "section": "colors" },
+      { "name": "The One Ignition Rule", "body": "Orange is the second data series and the one primary action on a page. It is never a decoration, a heading colour, or a second accent for selection.", "section": "colors" },
+      { "name": "The Tinted Note Rule", "body": "Notes and the verdict panel take their tone by mixing it into the panel (8% fill, 28-38% border), never by a solid colour block.", "section": "colors" },
+      { "name": "The Thin Figure Rule", "body": "Numbers that answer a question are Sora 300 with tabular figures and negative tracking; weight never goes up to make a figure louder, size does.", "section": "typography" },
+      { "name": "The Reading Face Rule", "body": "Anything a visitor reads as a sentence (body, notes, table cells, chart text, hover labels) is Atkinson Hyperlegible Next. Sora is for figures, headings, labels and controls.", "section": "typography" },
+      { "name": "The Answers First Rule", "body": "On a phone the four readouts appear before the map and before any explanation; nothing is placed between the place picker and the cards.", "section": "layout" },
+      { "name": "The No Drop Shadow Rule", "body": "No offset or blurred drop shadows anywhere. A panel separates from the ground by tone and a seam; a state shows by border colour.", "section": "elevation" }
+    ],
+    "dos": [
+      "**Do** state every verdict three ways: verdict colour, a three-segment meter, and solid / dashed / dotted trend line.",
+      "**Do** set answer figures in Sora 300 with tabular figures and a small slate unit at 0.42em.",
+      "**Do** separate panels with 1px seams (#1E293B) and tone steps, and show states with border colour.",
+      "**Do** keep cyan for selection, focus, links and \"very sure\"; keep orange for the second series and the one primary action.",
+      "**Do** use the uppercase tracked Sora 600 label for functional labels: card questions, field labels, metric labels, table headers.",
+      "**Do** put the four readouts directly after the place picker on phones, two by two, with the whole card as the tap target.",
+      "**Do** keep one entrance per page visit and turn the figure roll off under reduced motion.",
+      "**Do** use inline outline icons at 1.75 stroke, 16-18px."
+    ],
+    "donts": [
+      "**Don't** use drop shadows; the only box-shadows are the beacon ring, the inset active-tab seam, and the focus ring.",
+      "**Don't** show a verdict by colour alone, and don't use green or red for verdicts; they belong to notes.",
+      "**Don't** add a light theme or white stat cards with a blue accent and soft shadows; this world is dark.",
+      "**Don't** use orange as a heading, decoration or second selection colour.",
+      "**Don't** use emoji or glyph characters as icons.",
+      "**Don't** set sentences in Sora or figures in Atkinson."
+    ]
+  }
+}
