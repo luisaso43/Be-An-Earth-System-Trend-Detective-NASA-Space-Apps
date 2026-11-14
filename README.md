@@ -48,6 +48,7 @@ The sidebar switches between US units (°F, inches) and metric (°C, mm).
 | 🏠 My area | Pick a place: four answer cards (one per topic), then the evidence for one topic: headline answer, total change, change every 10 years, "how sure are we?", yearly chart with trend line, possible causes, expert details |
 | 🗺️ Florida map | **Where** is it changing: the same test at 26 points (or 14 tide gauges for sea level) |
 | ⚖️ Compare places | Two places side by side over the same years; flags opposite trends |
+| 🧳 Plan a trip | Pick a place, a year and an activity (theme parks, beach, mudding, hiking). Shows which months suit it best and what to expect in your trip year, using the same trend test as the other pages. **Static site only** (`site/trip.js`) |
 | 📖 How it works | The method in 4 plain steps, what "how sure" means, data sources, limits, searchable dictionary |
 
 ## Files

@@ -7,8 +7,10 @@
   <meta name="description" content="Is Florida getting hotter, rainier, muggier? Is the sea rising? Plain-English answers from 40+ years of NASA and NOAA data.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔎</text></svg>">
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="trip.css">
   <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js" defer></script>
   <script src="stats.js" defer></script>
+  <script src="trip.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -19,6 +21,7 @@
         <a href="#area">🏠 My area</a>
         <a href="#map">🗺️ Florida map</a>
         <a href="#compare">⚖️ Compare places</a>
+        <a href="#trip">🧳 Plan a trip</a>
         <a href="#how">📖 How it works</a>
       </nav>
       <div class="units" role="group" aria-label="Units">
@@ -77,6 +80,20 @@
       <div id="cmp-chart" class="chart"></div>
       <p id="cmp-caption" class="muted small"></p>
       <div id="cmp-summary"></div>
+    </section>
+
+    <!-- ============ PLAN A TRIP ============ -->
+    <section id="page-trip" class="page" hidden>
+      <h1>Plan your Florida trip</h1>
+      <p class="lead">Tell us <b>where</b> you are going and <b>what you want to do</b>. We use 45 years of NASA data to show which
+        months suit it best, what to expect, and how Florida's changing climate is shifting those months.</p>
+      <div class="two">
+        <div><label for="trip-place">📍 Where?</label><select id="trip-place"></select></div>
+        <div><label for="trip-year">📅 Year of your trip</label><select id="trip-year"></select></div>
+      </div>
+      <span class="lbl" id="trip-activity-label">🎯 What do you want to do?</span>
+      <div id="trip-activity" class="seg" role="tablist" aria-labelledby="trip-activity-label"></div>
+      <div id="trip-results"></div>
     </section>
 
     <!-- ============ HOW IT WORKS ============ -->

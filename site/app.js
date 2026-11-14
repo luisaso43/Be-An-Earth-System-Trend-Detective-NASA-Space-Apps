@@ -393,7 +393,11 @@
   // ======================================================================
   // Navigation and start-up
   // ======================================================================
-  const PAGES = { area: renderArea, map: renderMap, compare: renderCompare, how: renderGlossary };
+  // "Plan a trip" lives in trip.js; it gets the helpers it needs through this object
+  const renderTrip = () => window.TripPlanner && window.TripPlanner.render({
+    D, state, seriesKey, hasData, analysis, unitOf, signed, VERDICT, PLOT_CONFIG, chartLayout,
+  });
+  const PAGES = { area: renderArea, map: renderMap, compare: renderCompare, trip: renderTrip, how: renderGlossary };
   function currentPage() {
     const p = location.hash.replace("#", "");
     return PAGES[p] ? p : "area";
