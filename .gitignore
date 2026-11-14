@@ -1,3 +1,6 @@
 __pycache__/
 *.pyc
 .venv/
+
+# Taste design skill: 35 MB of assets, kept local only
+.claude/skills/design-taste-frontend/
