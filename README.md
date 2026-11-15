@@ -1,4 +1,4 @@
-# 🔎 Earth Data Detective: Florida
+# Dream Trip: Florida
 
 **NASA Space Apps 2026 · Challenge: Be an Earth Systems Trend Detective!**
 
