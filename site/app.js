@@ -488,7 +488,7 @@
   }
   function currentPage() {
     const p = location.hash.replace("#", "");
-    return PAGES[p] ? p : "area";
+    return PAGES[p] ? p : "trip";       // Plan a trip is the homepage
   }
   let shownPage = null;
   function show() {
